@@ -4,11 +4,6 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 
-calendarEvents = [
-    { id: 1, name: "event1" },
-    { id: 2, name: "event2" },
-];
-
 app.get("/", (req, res) => {
     res.send("Test something");
 });
