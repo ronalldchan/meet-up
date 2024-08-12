@@ -2,6 +2,22 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 8080;
 
+const mysql = require("mysql2");
+const connection = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "meet_up",
+});
+
+connection.connect((err) => {
+    if (err) {
+        console.error("Error connecting to MySQL:", err.stack);
+        return;
+    }
+    console.log("Connected to MySQL as id " + connection.threadId);
+});
+
 app.use(express.json());
 
 app.get("/", (req, res) => {

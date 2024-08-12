@@ -15,3 +15,9 @@ Main goal of this project is to further develop full-stack development skills
 - JavaScript
 - Node.js
 - MySQL
+
+## Usage
+
+### Backend
+
+Use ``` npx nodemon . ``` in backend folder
