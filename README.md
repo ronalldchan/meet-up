@@ -20,4 +20,6 @@ Main goal of this project is to further develop full-stack development skills
 
 ### Backend
 
-Use ``` npx nodemon . ``` in backend folder
+1. Set up MySQL locally by creating a new database called `meet_up`
+2. Use `/backend/tables.sql` to source the tables
+3. Use ``` node index.js ``` in backend folder to run the backend

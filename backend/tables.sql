@@ -22,17 +22,17 @@ CREATE TABLE availability (
 );
 
 insert into events values 
-(1, 'Test Event', '2024-08-11 09:00:00', '2024-08-11 09:00:00', 'PST'),
-(2, 'Test Event2', '2024-08-11 09:00:00', '2024-08-11 09:00:00', 'PST'),
-(3, 'Test Event3', '2024-08-11 09:00:00', '2024-08-11 09:00:00', 'PST');
+(1, 'Test Event', '2024-08-11 09:00:00', '2024-08-18 09:00:00', 'PST'),
+(2, 'Test Event2', '2024-08-11 09:00:00', '2024-08-12 09:00:00', 'PST'),
+(3, 'Test Event3', '2024-08-11 09:00:00', '2024-08-10 09:00:00', 'PST');
 
 insert into users values
 (1, 1, 'Ronald'),
-(2, 1, 'Brrr'),
-(3, 1, 'Brr'),
-(4, 2, 'Ronald'),
-(5, 2, 'Brrr'),
-(6, 2, 'Brr');
+(2, 1, 'Brad'),
+(3, 1, 'Brandon'),
+(4, 2, 'Jimmy'),
+(5, 2, 'Andrew'),
+(6, 2, 'Clive');
 
 insert into availability values
 (1, '2024-08-11 09:00:00'),

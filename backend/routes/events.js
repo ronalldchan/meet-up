@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
-events = [];
-
+const pool = require("../db");
 class Event {
     id;
     name;
@@ -25,8 +23,13 @@ function isValidInput(input) {
 
 router
     .route("/")
-    .get((req, res) => {
-        res.status(200).send(events);
+    .get(async (req, res) => {
+        try {
+            const [rows] = await pool.query("SELECT * FROM users");
+            res.status(200).json(rows);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     })
     .post((req, res) => {
         const name = req.body.name;
