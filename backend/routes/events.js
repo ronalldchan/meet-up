@@ -1,29 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
-const { parse, isValid } = require("date-fns");
-const { fromZonedTime, format } = require("date-fns-tz");
+const { parse, isValid, getMinutes, isAfter } = require("date-fns");
+const { fromZonedTime } = require("date-fns-tz");
 
-const datetimeFormat = "yyyy-MM-dd HH:mm:ss";
+const datetimeFormat = "yyyy-MM-dd HH:mm";
 
 function generateRandomId() {
     return Math.floor(Math.random() * 90000000) + 10000000;
-}
-
-class Event {
-    id;
-    name;
-    startDate;
-    endDate;
-    users;
-
-    constructor(id, name, startDate, endDate) {
-        this.id = id;
-        this.name = name;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.users = new Map();
-    }
 }
 
 function isValidInput(input) {
@@ -53,9 +37,16 @@ router
             let event_id = generateRandomId();
             let parsedStartDate = parse(start, datetimeFormat, new Date());
             let parsedEndDate = parse(end, datetimeFormat, new Date());
-            console.log(parsedStartDate);
             if (!isValid(parsedStartDate) || !isValid(parsedEndDate)) {
                 res.status(400).send(`Invalid datetime, should be in the following format "${datetimeFormat}"`);
+                return;
+            }
+            if (!isAfter(parsedEndDate, parsedStartDate)) {
+                res.status(400).send("End date should be after start date");
+                return;
+            }
+            if (getMinutes(parsedStartDate) % 15 != 0 || getMinutes(parsedEndDate) % 15 != 0) {
+                res.status(400).send("Datetime should be modulo of 15 minutes");
                 return;
             }
             let utcStartDateTime = fromZonedTime(parsedStartDate, timezone);
@@ -64,13 +55,7 @@ router
                 res.status(400).send("Invalid timezone information");
                 return;
             }
-            const [results] = await pool.query(`insert into events values (?, ?, ?, ?, ?)`, [
-                event_id,
-                name,
-                start,
-                end,
-                timezone,
-            ]);
+            await pool.query(`insert into events values (?, ?, ?, ?, ?)`, [event_id, name, start, end, timezone]);
             res.status(201).json({ message: "Event created successfully", event_id: event_id });
         } catch (error) {
             res.status(500).json({ error: error.message });
