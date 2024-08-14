@@ -1,6 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
+const moment = require("moment");
+
+const datetimeFormat = "YYYY-MM-DD HH:mm:ss";
+
+function generateRandomId() {
+    return Math.floor(Math.random() * 90000000) + 10000000;
+}
+
+function isValidSqlDatetime(datetime) {
+    console.log(datetime);
+    return moment(datetime, datetimeFormat, true).isValid();
+}
+
 class Event {
     id;
     name;
@@ -25,21 +38,39 @@ router
     .route("/")
     .get(async (req, res) => {
         try {
-            const [rows] = await pool.query("SELECT * FROM users");
+            const [rows] = await pool.query("SELECT * FROM events");
             res.status(200).json(rows);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     })
-    .post((req, res) => {
-        const name = req.body.name;
-        if (isValidInput(name)) {
-            res.status(400).send("Name is required and should be minimum of 3 characters");
-            return;
+    .post(async (req, res) => {
+        try {
+            const name = req.body.name;
+            const start = req.body.startDate;
+            const end = req.body.endDate;
+            const timezone = req.body.timezone;
+            if (isValidInput(name)) {
+                res.status(400).send("Name is required and should be minimum of 3 characters");
+                return;
+            }
+            if (!isValidSqlDatetime(start) || !isValidSqlDatetime(end)) {
+                res.status(400).send(`Invalid datetime, should be in the following format "${datetimeFormat}"`);
+                return;
+            }
+            let event_id = generateRandomId();
+            const [results] = await pool.query(`insert into events values (?, ?, ?, ?, ?)`, [
+                event_id,
+                name,
+                start,
+                end,
+                "PST",
+            ]);
+            console.log(results);
+            res.status(201).json({ message: "Event created successfully", event_id: event_id });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
         }
-        let event = new Event(events.length + 1, name);
-        events.push(event);
-        res.status(200).send(event);
     });
 
 router.route("/:id").get((req, res) => {
