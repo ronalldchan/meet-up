@@ -1,17 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../db");
-const moment = require("moment");
+const { parse, isValid } = require("date-fns");
+const { fromZonedTime, format } = require("date-fns-tz");
 
-const datetimeFormat = "YYYY-MM-DD HH:mm:ss";
+const datetimeFormat = "yyyy-MM-dd HH:mm:ss";
 
 function generateRandomId() {
     return Math.floor(Math.random() * 90000000) + 10000000;
-}
-
-function isValidSqlDatetime(datetime) {
-    console.log(datetime);
-    return moment(datetime, datetimeFormat, true).isValid();
 }
 
 class Event {
@@ -54,19 +50,27 @@ router
                 res.status(400).send("Name is required and should be minimum of 3 characters");
                 return;
             }
-            if (!isValidSqlDatetime(start) || !isValidSqlDatetime(end)) {
+            let event_id = generateRandomId();
+            let parsedStartDate = parse(start, datetimeFormat, new Date());
+            let parsedEndDate = parse(end, datetimeFormat, new Date());
+            console.log(parsedStartDate);
+            if (!isValid(parsedStartDate) || !isValid(parsedEndDate)) {
                 res.status(400).send(`Invalid datetime, should be in the following format "${datetimeFormat}"`);
                 return;
             }
-            let event_id = generateRandomId();
+            let utcStartDateTime = fromZonedTime(parsedStartDate, timezone);
+            let utcEndDateTime = fromZonedTime(parsedEndDate, timezone);
+            if (!isValid(utcStartDateTime) || !isValid(utcEndDateTime)) {
+                res.status(400).send("Invalid timezone information");
+                return;
+            }
             const [results] = await pool.query(`insert into events values (?, ?, ?, ?, ?)`, [
                 event_id,
                 name,
                 start,
                 end,
-                "PST",
+                timezone,
             ]);
-            console.log(results);
             res.status(201).json({ message: "Event created successfully", event_id: event_id });
         } catch (error) {
             res.status(500).json({ error: error.message });
