@@ -62,8 +62,16 @@ router
         }
     });
 
-router.route("/:id").get((req, res) => {
-    res.send(`Get event with ID ${req.params.id}`);
+router.route("/:id").get(async (req, res) => {
+    try {
+        const [result] = await pool.query("SELECT * FROM events where event_id = ? limit 1", [req.params.id]);
+        if (result.length < 1) {
+            res.status(404).send("Could not find event with that ID");
+        }
+        res.status(200).json(result[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 router.route("/:id/users").post((req, res) => {
