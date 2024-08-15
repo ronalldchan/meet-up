@@ -28,6 +28,10 @@ router
     })
     .post(async (req, res) => {
         try {
+            if (!(req.body.name && req.body.startDate && req.body.endDate && req.body.timezone)) {
+                res.status(400).json({ error: "Missing body information" });
+                return;
+            }
             const name = req.body.name;
             const start = req.body.startDate;
             const end = req.body.endDate;
