@@ -1,6 +1,9 @@
+import dotenv from "dotenv";
 import express from "express";
+import path from "path";
 const app = express();
-const port = process.env.PORT || 8080;
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+const port = process.env.PORT;
 
 app.use(express.json());
 
