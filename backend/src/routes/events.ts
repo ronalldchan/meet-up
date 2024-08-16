@@ -73,12 +73,14 @@ router
 
 router.route("/:id").get(async (req: Request, res: Response) => {
     try {
-        const sql = "SELECT * FROM events where event_id = ?";
-        const [result] = await pool.query(sql, [req.params.id]);
-        if (Array.isArray(result) && result.length == 0) {
+        const eventSql = "SELECT * FROM events where event_id = ?";
+        const [eventRows]: any[] = await pool.query(eventSql, [req.params.id]);
+        if (eventRows.length == 0) {
             res.status(404).json({ error: "Resource not found" });
         }
-        res.status(200).json(result);
+        const userSql = "SELECT user_id, name from users where event_id = ?";
+        const [userRows] = await pool.query(userSql, [req.params.id]);
+        res.status(200).json({ ...eventRows[0], users: userRows });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
@@ -122,9 +124,15 @@ router
 
 router.route("/:id/users/:user_id").get(async (req: Request, res: Response) => {
     try {
-        const sql = "SELECT * FROM users where user_id = ?";
-        const [result] = await pool.query(sql, [req.params.user_id]);
-        res.status(200).json(result);
+        const userSql = "SELECT * FROM users where user_id = ?";
+        const availSql = "select available from availability where user_id = ?";
+        const [userRows]: any[] = await pool.query(userSql, [req.params.user_id]);
+        if (userRows.length == 0) {
+            res.status(404).json({ error: "Resource not found" });
+        }
+        const [availRows]: any[] = await pool.query(availSql, [req.params.user_id]);
+        const availability: string[] = availRows.map((val: any) => val.available);
+        res.status(200).json({ ...userRows[0], availability: availability });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }
