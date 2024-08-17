@@ -16,20 +16,24 @@ function isValidInput(input: string): boolean {
     return !input || input.length < 3;
 }
 
+function getUtcTime(date: string, timezone: string): Date {
+    return fromZonedTime(parse(date, datetimeFormat, new Date()), timezone);
+}
+
 router
     .route("/")
-    .get(async (req: Request, res: Response) => {
-        try {
-            const [rows] = await pool.query("SELECT * FROM events");
-            res.status(200).json(rows);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
-        }
-    })
+    // .get(async (req: Request, res: Response) => {
+    //     try {
+    //         const [rows] = await pool.query("SELECT * FROM events");
+    //         res.status(200).json(rows);
+    //     } catch (error: any) {
+    //         res.status(500).json({ error: error.message });
+    //     }
+    // })
     .post(async (req: Request, res: Response) => {
         try {
             if (!(req.body.name && req.body.startDate && req.body.endDate && req.body.timezone)) {
-                res.status(400).json({ error: "Missing body information" });
+                res.status(400).json({ error: "Body requires name, startDate, endDate, timezone" });
                 return;
             }
             const name = req.body.name;
@@ -41,11 +45,11 @@ router
                 return;
             }
             let event_id: number = generateNRandomId(8);
-            let parsedStartDate: Date = parse(start, datetimeFormat, new Date());
-            let parsedEndDate: Date = parse(end, datetimeFormat, new Date());
+            let parsedStartDate: Date = getUtcTime(start, timezone);
+            let parsedEndDate: Date = getUtcTime(end, timezone);
             if (!isValid(parsedStartDate) || !isValid(parsedEndDate)) {
                 res.status(400).json({
-                    error: `Invalid datetime, should be in the following format "${datetimeFormat}"`,
+                    error: `Invalid datetime or timezone, should be in the following format '${datetimeFormat}' and 'America/New_York'`,
                 });
                 return;
             }
@@ -55,12 +59,6 @@ router
             }
             if (getMinutes(parsedStartDate) % 15 != 0 || getMinutes(parsedEndDate) % 15 != 0) {
                 res.status(400).json({ error: "Datetime should be modulo of 15 minutes" });
-                return;
-            }
-            let utcStartDateTime: Date = fromZonedTime(parsedStartDate, timezone);
-            let utcEndDateTime: Date = fromZonedTime(parsedEndDate, timezone);
-            if (!isValid(utcStartDateTime) || !isValid(utcEndDateTime)) {
-                res.status(400).json({ error: "Invalid timezone information" });
                 return;
             }
             const sql: string = "insert into events values (?, ?, ?, ?, ?)";
@@ -122,20 +120,34 @@ router
         }
     });
 
-router.route("/:id/users/:user_id").get(async (req: Request, res: Response) => {
-    try {
-        const userSql = "SELECT * FROM users where user_id = ?";
-        const availSql = "select available from availability where user_id = ?";
-        const [userRows]: any[] = await pool.query(userSql, [req.params.user_id]);
-        if (userRows.length == 0) {
-            res.status(404).json({ error: "Resource not found" });
+router
+    .route("/:id/users/:user_id")
+    .get(async (req: Request, res: Response) => {
+        try {
+            const userSql = "SELECT * FROM users where user_id = ?";
+            const availSql = "select available from availability where user_id = ?";
+            const [userRows]: any[] = await pool.query(userSql, [req.params.user_id]);
+            if (userRows.length == 0) {
+                res.status(404).json({ error: "Resource not found" });
+            }
+            const [availRows]: any[] = await pool.query(availSql, [req.params.user_id]);
+            const availability: string[] = availRows.map((val: any) => val.available);
+            res.status(200).json({ ...userRows[0], availability: availability });
+        } catch (error: any) {
+            res.status(500).json({ error: error.message });
         }
-        const [availRows]: any[] = await pool.query(availSql, [req.params.user_id]);
-        const availability: string[] = availRows.map((val: any) => val.available);
-        res.status(200).json({ ...userRows[0], availability: availability });
-    } catch (error: any) {
-        res.status(500).json({ error: error.message });
-    }
-});
+    })
+    .put(async (req: Request, res: Response) => {
+        const times: string[] = req.body.availability;
+        const timezone: string = req.body.timezone;
+        const dates: Date[] = times.map((time) => getUtcTime(time, timezone));
+        if (dates.some((date: Date) => !isValid(date))) {
+            res.status(400).json({ error: "Datetime or Timezone information is invalid" });
+            return;
+        }
+        dates.forEach((date: Date) => {});
+        const sql = "insert into availability values (user_id, available) values (?, ?)";
+        const [rows]: any[] = await pool.query(sql, [req.params]);
+    });
 
 module.exports = router;
