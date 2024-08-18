@@ -1,8 +1,9 @@
 import dotenv from "dotenv";
-import express from "express";
 import path from "path";
-const app = express();
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
+import express from "express";
+import eventsRouter from "./routes/eventRoute";
+const app = express();
 const port = process.env.PORT;
 
 app.use(express.json());
@@ -10,8 +11,6 @@ app.use(express.json());
 app.get("/", (req, res) => {
     res.send("Test something");
 });
-
-const eventsRouter = require("./routes/events");
 
 app.use("/events", eventsRouter);
 
