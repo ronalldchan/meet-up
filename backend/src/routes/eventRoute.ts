@@ -3,10 +3,12 @@ import pool from "../db";
 import { isValid } from "date-fns";
 import { EventController } from "../controllers/eventController";
 import { generateNRandomId, getUtcDateTime } from "../utils";
+import { UserController } from "../controllers/userController";
 
 const router = express.Router();
 
 const eventController: EventController = new EventController();
+const userController: UserController = new UserController();
 
 router
     .route("/")
@@ -20,19 +22,11 @@ router
     // })
     .post(eventController.createEvent);
 
-router.route("/:id").get(eventController.getEvent);
+router.route("/:eventId").get(eventController.getEvent);
 
 router
-    .route("/:id/users")
-    .get(async (req: Request, res: Response) => {
-        try {
-            const sql = "SELECT * FROM users where event_id = ?";
-            const [result] = await pool.query(sql, [req.params.id]);
-            res.status(200).json(result);
-        } catch (error: any) {
-            res.status(500).json({ error: error.message });
-        }
-    })
+    .route("/:eventId/users")
+    .get(userController.getUsersFromEvent)
     .post(async (req: Request, res: Response) => {
         try {
             const sql: string = "insert into users values (?, ?, ?)";
@@ -59,7 +53,7 @@ router
     });
 
 router
-    .route("/:id/users/:user_id")
+    .route("/:eventId/users/:user_id") // drop this route? this isnt needed since events route returns the user and availability information from the request
     .get(async (req: Request, res: Response) => {
         try {
             const userSql = "SELECT * FROM users where user_id = ?";

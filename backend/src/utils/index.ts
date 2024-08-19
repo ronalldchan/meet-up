@@ -12,6 +12,7 @@ export function generateNRandomId(n: number) {
 export function getDateTime(date: string): Date {
     return parse(date, datetimeFormat, new Date());
 }
+
 export function getUtcDateTime(date: string, timezone: string): Date {
     return fromZonedTime(getDateTime(date), timezone);
 }

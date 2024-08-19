@@ -1,4 +1,4 @@
-import { FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2";
+import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
 import { User } from "../interfaces/user";
 import { getUserStruct } from "../utils/sqlToStruct";

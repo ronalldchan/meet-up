@@ -9,9 +9,9 @@ const port = process.env.PORT;
 app.use(express.json());
 
 app.get("/", (req, res) => {
-    res.send("Test something");
+    res.send("Route return");
 });
 
-app.use("/events", eventsRouter);
+app.use("/api/events", eventsRouter);
 
 app.listen(port, () => console.log(`App open on http://localhost:${port}`));

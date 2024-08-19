@@ -41,16 +41,17 @@ export class EventController {
             }
             if (!(await EventService.createEvent(eventId, name, startDate, endDate, timezone)))
                 throw new Error("Failed to create event");
-            res.status(201).json({ message: "Event created successfully", event_id: eventId });
+            res.status(201).json({ message: "Event created successfully", eventId: eventId });
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }
     }
 
     async getEvent(req: Request, res: Response) {
+        const { eventId } = req.params;
         try {
-            const eventRow: Event = await EventService.getEvent(parseInt(req.params.id));
-            const userRows: User[] = await UserService.getUsersFromEvent(parseInt(req.params.id));
+            const eventRow: Event = await EventService.getEvent(parseInt(eventId));
+            const userRows: User[] = await UserService.getUsersFromEvent(parseInt(eventId));
             res.status(200).json({ ...eventRow, users: userRows.map(({ userId, name }) => ({ userId, name })) });
         } catch (error: any) {
             res.status(500).json({ error: error.message });
