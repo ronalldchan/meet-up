@@ -15,11 +15,11 @@ export class EventController {
         const { name, startDate, endDate, timezone } = req.body;
         try {
             if (!(name && startDate && endDate && timezone)) {
-                res.status(400).json({ error: "Body requires name, startDate, endDate, timezone" });
+                res.status(400).json({ error: "Bad Request", message: "Required parameters are missing" });
                 return;
             }
             if (isValidInput(name)) {
-                res.status(400).json({ error: "Name is required and should be minimum of 3 characters" });
+                res.status(400).json({ error: "Bad Request", message: "Name should be minimum of 3 characters" });
                 return;
             }
             let eventId: number = generateNRandomId(8);
@@ -27,23 +27,33 @@ export class EventController {
             let parsedEndDate: Date = getUtcDateTime(endDate, timezone);
             if (!isValid(parsedStartDate) || !isValid(parsedEndDate)) {
                 res.status(400).json({
-                    error: `Invalid datetime or timezone, should be in the following format '${datetimeFormat}' and 'America/New_York'`,
+                    error: "Bad Rquest",
+                    message: `Invalid datetime or timezone, should be in the following format '${datetimeFormat}' and 'America/New_York'`,
                 });
                 return;
             }
             if (!isAfter(parsedEndDate, parsedStartDate)) {
-                res.status(400).json({ error: "End date should be after start date" });
+                res.status(400).json({ error: "Bad Request", message: "End date should be after start date" });
                 return;
             }
             if (getMinutes(parsedStartDate) % 15 != 0 || getMinutes(parsedEndDate) % 15 != 0) {
-                res.status(400).json({ error: "Datetime should be modulo of 15 minutes" });
+                res.status(400).json({ error: "Bad Request", message: "Datetime should be modulo of 15 minutes" });
                 return;
             }
-            if (!(await EventService.createEvent(eventId, name, startDate, endDate, timezone)))
-                throw new Error("Failed to create event");
+            await EventService.createEvent(eventId, name, startDate, endDate, timezone);
             res.status(201).json({ message: "Event created successfully", eventId: eventId });
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            switch (error.code) {
+                case "ER_DUP_ENTRY":
+                    res.status(409).json({
+                        error: error.code,
+                        message: "Failed to create event, duplicate entry detected",
+                    });
+                    return;
+                default:
+                    res.status(500).json({ error: error.code, message: error.message });
+                    return;
+            }
         }
     }
 

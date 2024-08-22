@@ -24,33 +24,7 @@ router
 
 router.route("/:eventId").get(eventController.getEvent);
 
-router
-    .route("/:eventId/users")
-    .get(userController.getUsersFromEvent)
-    .post(async (req: Request, res: Response) => {
-        try {
-            const sql: string = "insert into users values (?, ?, ?)";
-            const name: string = req.body.name;
-            const user_id: number = generateNRandomId(8);
-            const event_id: number = parseInt(req.params.id);
-            await pool.query(sql, [user_id, event_id, name]);
-            res.status(200).json({
-                message: "User added successfully",
-                data: { user_id: user_id, event_id: event_id, name: name },
-            });
-        } catch (error: any) {
-            switch (error.code) {
-                case "ER_DUP_ENTRY":
-                    res.status(409).json({ error: "Duplicate entry detected" });
-                    break;
-                case "ER_NO_REFERENCED_ROW_2":
-                    res.status(404).json({ error: `No event with ID ${req.params.id}` });
-                    break;
-                default:
-                    res.status(500).json({ error: error.message });
-            }
-        }
-    });
+router.route("/:eventId/users").get(userController.getUsersFromEvent).post(userController.createUser);
 
 router
     .route("/:eventId/users/:user_id") // drop this route? this isnt needed since events route returns the user and availability information from the request

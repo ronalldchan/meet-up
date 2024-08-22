@@ -11,7 +11,7 @@ export class EventService {
             const event: Event = getEventStruct(rows[0]);
             return event;
         } catch (error) {
-            throw new Error("Database query failed");
+            throw error;
         }
     }
 
@@ -33,8 +33,7 @@ export class EventService {
             ]);
             return result.affectedRows == 1;
         } catch (error) {
-            console.log(error);
-            throw new Error("Database insert failed");
+            throw error;
         }
     }
 }
