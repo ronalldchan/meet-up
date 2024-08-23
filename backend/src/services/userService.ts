@@ -1,11 +1,10 @@
 import { FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../db";
-import { User } from "../interfaces/user";
-import { getUserStruct } from "../utils/sqlToStruct";
+import { getUserStruct, User } from "../interfaces/user";
 
 export class UserService {
     static async getUsersFromEvent(eventId: number): Promise<User[]> {
-        const sql = "SELECT * from users where event_id = ?";
+        const sql = "SELECT * FROM users WHERE event_id = ?";
         try {
             const [userRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
             return userRows.map((user) => getUserStruct(user));

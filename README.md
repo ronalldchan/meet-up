@@ -8,7 +8,9 @@ Main goal of this project is to further develop full-stack development skills
 
 ## Features
 
-- Ability to set availability times for users
+- Ability to create events with a name, start datetime, end datetime, and timezone.
+- Creating new user for events
+- Setting availability times for users
 
 ## Technology Stack
 

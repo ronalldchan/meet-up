@@ -1,7 +1,6 @@
 import { FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../db";
-import { Event } from "../interfaces/event";
-import { getEventStruct } from "../utils/sqlToStruct";
+import { Event, getEventStruct } from "../interfaces/event";
 
 export class EventService {
     static async getEvent(eventId: number): Promise<Event> {

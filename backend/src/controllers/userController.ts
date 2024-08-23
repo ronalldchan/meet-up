@@ -21,6 +21,10 @@ export class UserController {
         const { eventId } = req.params;
         const { name } = req.body;
         try {
+            if (!(eventId && name) && !isNaN(parseInt(eventId))) {
+                res.status(400).json({ error: "Bad Request", message: "Required parameters are missing" });
+                return;
+            }
             const userId = generateNRandomId(8);
             const result = await UserService.createUser(userId, parseInt(eventId), name);
             if (!result) {
