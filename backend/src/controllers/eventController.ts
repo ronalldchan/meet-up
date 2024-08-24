@@ -1,10 +1,11 @@
 import { getMinutes, isAfter, isValid } from "date-fns";
 import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
-import { datetimeFormat, generateNRandomId, getUtcDateTime } from "../utils";
+import { dateFormat, generateNRandomId, getUtcDateTime, timeFormat } from "../utils";
 import { UserService } from "../services/userService";
 import { Event } from "../interfaces/event";
 import { User } from "../interfaces/user";
+import { formatInTimeZone } from "date-fns-tz";
 
 function isValidInput(input: string): boolean {
     return !input || input.length < 3;
@@ -12,9 +13,9 @@ function isValidInput(input: string): boolean {
 
 export class EventController {
     async createEvent(req: Request, res: Response) {
-        const { name, startDate, endDate, timezone } = req.body;
+        const { name, startDate, endDate, startTime, endTime, timezone } = req.body;
         try {
-            if (!(name && startDate && endDate && timezone)) {
+            if (!(name && startDate && endDate && startTime && endTime && timezone)) {
                 res.status(400).json({ error: "Bad Request", message: "Required parameters are missing" });
                 return;
             }
@@ -23,12 +24,12 @@ export class EventController {
                 return;
             }
             let eventId: number = generateNRandomId(8);
-            let parsedStartDate: Date = getUtcDateTime(startDate, timezone);
-            let parsedEndDate: Date = getUtcDateTime(endDate, timezone);
+            let parsedStartDate: Date = getUtcDateTime(startDate, startTime, timezone);
+            let parsedEndDate: Date = getUtcDateTime(endDate, endTime, timezone);
             if (!isValid(parsedStartDate) || !isValid(parsedEndDate)) {
                 res.status(400).json({
-                    error: "Bad Rquest",
-                    message: `Invalid datetime or timezone, should be in the following format '${datetimeFormat}' and 'America/New_York'`,
+                    error: "Bad Request",
+                    message: `Invalid date, time, or timezone. Date should be '${dateFormat}', time should be '${timeFormat}', timezone should be in IANA format`,
                 });
                 return;
             }
@@ -40,7 +41,15 @@ export class EventController {
                 res.status(400).json({ error: "Bad Request", message: "Datetime should be modulo of 15 minutes" });
                 return;
             }
-            await EventService.createEvent(eventId, name, startDate, endDate, timezone);
+            await EventService.createEvent(
+                eventId,
+                name,
+                formatInTimeZone(parsedStartDate, "UTC", dateFormat),
+                formatInTimeZone(parsedEndDate, "UTC", dateFormat),
+                formatInTimeZone(parsedStartDate, "UTC", timeFormat),
+                formatInTimeZone(parsedEndDate, "UTC", timeFormat),
+                timezone
+            );
             res.status(201).json({ message: "Event created successfully", eventId: eventId });
         } catch (error: any) {
             switch (error.code) {

@@ -1,8 +1,10 @@
 CREATE TABLE events (
     event_id INT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
-    start_date DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
     timezone VARCHAR(64) NOT NULL
 );
 
@@ -22,9 +24,9 @@ CREATE TABLE availability (
 );
 
 insert into events values 
-(1, 'My First Event', '2024-08-11 09:00:00', '2024-08-18 09:00:00', 'America/New_York'),
-(2, 'Test Event 2', '2024-08-11 09:00:00', '2024-08-12 09:00:00', 'America/New_York'),
-(3, 'Test Event3', '2024-08-11 09:00:00', '2024-08-10 09:00:00', 'America/New_York');
+(1, 'My First Event', '2024-08-11', '2024-08-18', '09:00', '09:00', 'America/New_York'),
+(2, 'Test Event 2', '2024-08-11', '2024-08-18', '09:00', '09:00', 'America/New_York'),
+(3, 'Test Event 3', '2024-08-11', '2024-08-18', '09:00', '09:00', 'America/New_York');
 
 insert into users values
 (1, 1, 'Ronald'),

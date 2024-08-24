@@ -1,17 +1,19 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { generateNRandomId } from "../utils";
+import { User } from "../interfaces/user";
 
 export class UserController {
     async getUsersFromEvent(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            res.status(200).json(
-                (await UserService.getUsersFromEvent(parseInt(eventId))).map(({ userId, name }) => ({
+            const users: User[] = await UserService.getUsersFromEvent(parseInt(eventId));
+            res.status(200).json({
+                users: users.map(({ userId, name }) => ({
                     userId,
                     name,
-                }))
-            );
+                })),
+            });
         } catch (error) {
             res.status(500).json({ error: "Failed to get users from event" });
         }
@@ -32,7 +34,6 @@ export class UserController {
             }
             res.status(200).json({ message: "Successfully created new user", userId: userId });
         } catch (error: any) {
-            console.log(error);
             switch (error.code) {
                 case "ER_DUP_ENTRY":
                     res.status(409).json({

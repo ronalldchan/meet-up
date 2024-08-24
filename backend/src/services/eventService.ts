@@ -19,15 +19,20 @@ export class EventService {
         name: string,
         startDate: string,
         endDate: string,
+        startTime: string,
+        endTime: string,
         timezone: string
     ): Promise<boolean> {
-        const sql = "INSERT INTO events (event_id, name, start_date, end_date, timezone) VALUES (?, ?, ?, ?, ?)";
+        const sql =
+            "INSERT INTO events (event_id, name, start_date, end_date, start_time, end_time, timezone) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try {
             const [result]: [ResultSetHeader, FieldPacket[]] = await pool.query(sql, [
                 eventId,
                 name,
                 startDate,
                 endDate,
+                startTime,
+                endTime,
                 timezone,
             ]);
             return result.affectedRows == 1;

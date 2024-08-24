@@ -3,19 +3,25 @@ import { AvailabilityService } from "../services/availabilityService";
 import { UserService } from "../services/userService";
 import { User } from "../interfaces/user";
 import { getUtcDateTime } from "../utils";
-import { isValid } from "date-fns";
+import { getMilliseconds, isValid } from "date-fns";
 
 export class AvailabilityController {
     async addAvailability(req: Request, res: Response) {
         const { eventId, userId } = req.params;
         const { availability, timezone }: { availability: string[]; timezone: string } = req.body;
         try {
-            const userRows: User[] = await UserService.getUsersFromEvent(parseInt(eventId));
-            if (userRows.some((user) => user.userId == parseInt(userId))) {
+            const user: User = await UserService.getUser(parseInt(userId));
+            if (user.eventId != parseInt(eventId)) {
                 res.status(400).json({ error: "User is not part of this event" });
                 return;
             }
-            if (availability.some((avail) => !isValid(getUtcDateTime(avail, timezone)))) {
+            if (
+                availability.some((avail) => {
+                    const datetime = getUtcDateTime(avail, "test", timezone); // TODO get proper Date value
+                    console.log(datetime);
+                    return !isValid(datetime) || getMilliseconds(datetime) % 15 != 0;
+                })
+            ) {
                 res.status(400).json({ error: "Bad Request", message: "Datetime or timezone value is invalid" });
                 return;
             }

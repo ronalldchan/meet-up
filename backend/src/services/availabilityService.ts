@@ -3,7 +3,7 @@ import pool from "../db";
 
 export class AvailabilityService {
     static async addAvailability(userId: number, availability: string): Promise<boolean> {
-        const sql = "INSERT INTO availability (user_id, available) values (?, ?)";
+        const sql = "INSERT IGNORE INTO availability (user_id, available) values (?, ?)";
         try {
             await pool.execute(sql, [userId, availability]);
             return true;
