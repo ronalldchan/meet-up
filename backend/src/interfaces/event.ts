@@ -12,7 +12,7 @@ export interface Event {
     timezone: string;
 }
 
-export function getEventStruct(data: any): Event {
+export function getSqlEventStruct(data: any): Event {
     console.log(data);
     return {
         eventId: data.event_id,

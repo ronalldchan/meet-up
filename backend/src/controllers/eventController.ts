@@ -1,15 +1,9 @@
 import { getMinutes, isAfter, isValid } from "date-fns";
 import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
-import { dateFormat, generateNRandomId, getUtcDateTime, timeFormat } from "../utils";
-import { UserService } from "../services/userService";
+import { dateFormat, generateNRandomId, getUtcDateTime, isValidInput, timeFormat } from "../utils";
 import { Event } from "../interfaces/event";
-import { User } from "../interfaces/user";
 import { formatInTimeZone } from "date-fns-tz";
-
-function isValidInput(input: string): boolean {
-    return !input || input.length < 3;
-}
 
 export class EventController {
     async createEvent(req: Request, res: Response) {
@@ -70,8 +64,9 @@ export class EventController {
         const { eventId } = req.params;
         try {
             const eventRow: Event = await EventService.getEvent(parseInt(eventId));
-            const userRows: User[] = await UserService.getUsersFromEvent(parseInt(eventId));
-            res.status(200).json({ ...eventRow, users: userRows.map(({ userId, name }) => ({ userId, name })) });
+            res.status(200).json(eventRow);
+            // const userRows: User[] = await UserService.getUsersFromEvent(parseInt(eventId));
+            // res.status(200).json({ ...eventRow, users: userRows.map(({ userId, name }) => ({ userId, name })) });
         } catch (error: any) {
             res.status(500).json({ error: error.message });
         }

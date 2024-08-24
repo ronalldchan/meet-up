@@ -26,3 +26,7 @@ export function isValidTime(timeString: string) {
 export function isValidDate(dateString: string): boolean {
     return isValid(parse(dateString, dateFormat, new Date()));
 }
+
+export function isValidInput(input: string): boolean {
+    return !input || input.length < 3;
+}

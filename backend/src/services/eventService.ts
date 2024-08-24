@@ -1,13 +1,13 @@
 import { FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../db";
-import { Event, getEventStruct } from "../interfaces/event";
+import { Event, getSqlEventStruct } from "../interfaces/event";
 
 export class EventService {
     static async getEvent(eventId: number): Promise<Event> {
         const sql = "SELECT * FROM events WHERE event_id = ?";
         try {
             const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
-            const event: Event = getEventStruct(rows[0]);
+            const event: Event = getSqlEventStruct(rows[0]);
             return event;
         } catch (error) {
             throw error;
