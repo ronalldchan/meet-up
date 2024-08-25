@@ -11,11 +11,17 @@ export class EventController {
         const { name, startDate, endDate, startTime, endTime, timezone } = req.body;
         try {
             if (!(name && startDate && endDate && startTime && endTime && timezone)) {
-                res.status(400).json({ error: "Bad Request", message: InsertErrorMessages.MISSING_PARAMETERS });
+                res.status(400).json({
+                    error: ErrorCodes.BAD_REQUEST,
+                    message: InsertErrorMessages.MISSING_PARAMETERS,
+                });
                 return;
             }
             if (isValidInput(name)) {
-                res.status(400).json({ error: "Bad Request", message: "Name should be minimum of 3 characters" });
+                res.status(400).json({
+                    error: ErrorCodes.BAD_REQUEST,
+                    message: "Name should be minimum of 3 characters",
+                });
                 return;
             }
             let eventId: number = generateNRandomId(8);
@@ -29,7 +35,7 @@ export class EventController {
                 getMinutes(parsedEndDate) % 15 != 0
             ) {
                 res.status(400).json({
-                    error: "Bad Request",
+                    error: ErrorCodes.BAD_REQUEST,
                     message: InsertErrorMessages.INVALID_DATETIME,
                 });
                 return;
@@ -48,7 +54,7 @@ export class EventController {
             switch (error.code) {
                 case "ER_DUP_ENTRY":
                     res.status(409).json({
-                        error: error.code,
+                        error: ErrorCodes.INSERT_DUPLICATE,
                         message: InsertErrorMessages.DUPLICATE_ENTRY,
                     });
                     return;

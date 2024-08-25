@@ -1,6 +1,7 @@
 import { dateFormat, timeFormat } from "../utils";
 
 export const ErrorCodes = {
+    BAD_REQUEST: "BAD REQUEST",
     INSERT_FAILED: "INSERT_FAILED",
     INSERT_DUPLICATE: "INSERT_DUPLICATE",
     GET_NOT_FOUND: "GET_NOT_FOUND",
@@ -12,7 +13,7 @@ export const ErrorCodes = {
 export const InsertErrorMessages = {
     INSERT_FAILED: "Failed to insert the record. Please try again.",
     DUPLICATE_ENTRY: "Duplicate entry detected.",
-    MISSING_PARAMETERS: "Required parameters are missing.",
+    MISSING_PARAMETERS: "Required parameters are missing or invalid.",
     INVALID_DATETIME: `Invalid date, time, or timezone. Date should be '${dateFormat}', time should be '${timeFormat}', timezone should be in IANA format`,
 };
 
