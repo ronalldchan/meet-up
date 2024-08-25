@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { AvailabilityService } from "../services/availabilityService";
 import { UserService } from "../services/userService";
 import { User } from "../interfaces/user";
-import { getUtcDateTime } from "../utils";
-import { getMilliseconds, isValid } from "date-fns";
+import { getDateTime } from "../utils";
+import { isValid } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 
 export class AvailabilityController {
     async addAvailability(req: Request, res: Response) {
@@ -15,13 +16,8 @@ export class AvailabilityController {
                 res.status(400).json({ error: "User is not part of this event" });
                 return;
             }
-            if (
-                availability.some((avail) => {
-                    const datetime = getUtcDateTime(avail, "test", timezone); // TODO get proper Date value
-                    console.log(datetime);
-                    return !isValid(datetime) || getMilliseconds(datetime) % 15 != 0;
-                })
-            ) {
+            const parsedAvailability: Date[] = availability.map((avail) => fromZonedTime(getDateTime(avail), timezone));
+            if (parsedAvailability.some((date) => !isValid(date))) {
                 res.status(400).json({ error: "Bad Request", message: "Datetime or timezone value is invalid" });
                 return;
             }

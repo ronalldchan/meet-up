@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { generateNRandomId } from "../utils";
 import { User } from "../interfaces/user";
+import { GetErrorMessages, InsertErrorMessages } from "../errors";
 
 export class UserController {
     async getUsersFromEvent(req: Request, res: Response) {
@@ -14,8 +15,8 @@ export class UserController {
                     name,
                 })),
             });
-        } catch (error) {
-            res.status(500).json({ error: "Failed to get users from event" });
+        } catch (error: any) {
+            res.status(500).json({ error: error.message, message: GetErrorMessages.GET_FAILED });
         }
     }
 
@@ -24,25 +25,22 @@ export class UserController {
         const { name } = req.body;
         try {
             if (!(eventId && name) && !isNaN(parseInt(eventId))) {
-                res.status(400).json({ error: "Bad Request", message: "Required parameters are missing" });
+                res.status(400).json({ error: "Bad Request", message: InsertErrorMessages.MISSING_PARAMETERS });
                 return;
             }
             const userId = generateNRandomId(8);
-            const result = await UserService.createUser(userId, parseInt(eventId), name);
-            if (!result) {
-                res.status(400).json({ error: "Failed to create new user" });
-            }
+            await UserService.createUser(userId, parseInt(eventId), name);
             res.status(200).json({ message: "Successfully created new user", userId: userId });
         } catch (error: any) {
             switch (error.code) {
                 case "ER_DUP_ENTRY":
                     res.status(409).json({
                         error: error.code,
-                        message: "Failed to create user, duplicate entry detected",
+                        message: InsertErrorMessages.DUPLICATE_ENTRY,
                     });
                     break;
                 case "ER_NO_REFERENCED_ROW_2":
-                    res.status(404).json({ error: error.code, message: `No event with ID ${eventId}` });
+                    res.status(404).json({ error: error.code, message: GetErrorMessages.RECORD_NOT_FOUND });
                     break;
                 default:
                     res.status(500).json({ error: error.code, message: error.message });

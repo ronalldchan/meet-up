@@ -4,13 +4,14 @@ import { EventService } from "../services/eventService";
 import { dateFormat, generateNRandomId, getUtcDateTime, isValidInput, timeFormat } from "../utils";
 import { Event } from "../interfaces/event";
 import { formatInTimeZone } from "date-fns-tz";
+import { ErrorCodes, GetErrorMessages, InsertErrorMessages } from "../errors";
 
 export class EventController {
     async createEvent(req: Request, res: Response) {
         const { name, startDate, endDate, startTime, endTime, timezone } = req.body;
         try {
             if (!(name && startDate && endDate && startTime && endTime && timezone)) {
-                res.status(400).json({ error: "Bad Request", message: "Required parameters are missing" });
+                res.status(400).json({ error: "Bad Request", message: InsertErrorMessages.MISSING_PARAMETERS });
                 return;
             }
             if (isValidInput(name)) {
@@ -20,19 +21,17 @@ export class EventController {
             let eventId: number = generateNRandomId(8);
             let parsedStartDate: Date = getUtcDateTime(startDate, startTime, timezone);
             let parsedEndDate: Date = getUtcDateTime(endDate, endTime, timezone);
-            if (!isValid(parsedStartDate) || !isValid(parsedEndDate)) {
+            if (
+                !isValid(parsedStartDate) ||
+                !isValid(parsedEndDate) ||
+                !isAfter(parsedEndDate, parsedStartDate) ||
+                getMinutes(parsedStartDate) % 15 != 0 ||
+                getMinutes(parsedEndDate) % 15 != 0
+            ) {
                 res.status(400).json({
                     error: "Bad Request",
-                    message: `Invalid date, time, or timezone. Date should be '${dateFormat}', time should be '${timeFormat}', timezone should be in IANA format`,
+                    message: InsertErrorMessages.INVALID_DATETIME,
                 });
-                return;
-            }
-            if (!isAfter(parsedEndDate, parsedStartDate)) {
-                res.status(400).json({ error: "Bad Request", message: "End date should be after start date" });
-                return;
-            }
-            if (getMinutes(parsedStartDate) % 15 != 0 || getMinutes(parsedEndDate) % 15 != 0) {
-                res.status(400).json({ error: "Bad Request", message: "Datetime should be modulo of 15 minutes" });
                 return;
             }
             await EventService.createEvent(
@@ -50,7 +49,7 @@ export class EventController {
                 case "ER_DUP_ENTRY":
                     res.status(409).json({
                         error: error.code,
-                        message: "Failed to create event, duplicate entry detected",
+                        message: InsertErrorMessages.DUPLICATE_ENTRY,
                     });
                     return;
                 default:
@@ -63,12 +62,16 @@ export class EventController {
     async getEvent(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            const eventRow: Event = await EventService.getEvent(parseInt(eventId));
+            const eventRow: Event | null = await EventService.getEvent(parseInt(eventId));
+            if (eventRow == null) {
+                res.status(404).json({ error: ErrorCodes.GET_NOT_FOUND, message: GetErrorMessages.RECORD_NOT_FOUND });
+                return;
+            }
             res.status(200).json(eventRow);
             // const userRows: User[] = await UserService.getUsersFromEvent(parseInt(eventId));
             // res.status(200).json({ ...eventRow, users: userRows.map(({ userId, name }) => ({ userId, name })) });
         } catch (error: any) {
-            res.status(500).json({ error: error.message });
+            res.status(500).json({ error: error.code, message: GetErrorMessages.GET_FAILED });
         }
     }
 }

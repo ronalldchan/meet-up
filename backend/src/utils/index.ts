@@ -11,7 +11,7 @@ export function generateNRandomId(n: number) {
     return Math.floor(min + Math.random() * (max - min + 1));
 }
 
-function getDateTime(date: string): Date {
+export function getDateTime(date: string): Date {
     return parse(date, datetimeFormat, new Date());
 }
 
