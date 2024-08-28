@@ -13,7 +13,6 @@ export interface Event {
 }
 
 export function getSqlEventStruct(data: any): Event {
-    console.log(data);
     return {
         eventId: data.event_id,
         name: data.name,

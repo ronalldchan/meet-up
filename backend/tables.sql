@@ -24,9 +24,9 @@ CREATE TABLE availability (
 );
 
 insert into events values 
-(1, 'My First Event', '2024-08-11', '2024-08-18', '09:00', '09:00', 'America/New_York'),
-(2, 'Test Event 2', '2024-08-11', '2024-08-18', '09:00', '09:00', 'America/New_York'),
-(3, 'Test Event 3', '2024-08-11', '2024-08-18', '09:00', '09:00', 'America/New_York');
+(1, 'My First Event', '2024-08-11', '2024-08-18', '09:00', '12:00', 'America/New_York'),
+(2, 'Test Event 2', '2024-08-11', '2024-08-18', '09:00', '12:00', 'America/New_York'),
+(3, 'Test Event 3', '2024-08-11', '2024-08-18', '09:00', '12:00', 'America/New_York');
 
 insert into users values
 (1, 1, 'Ronald'),

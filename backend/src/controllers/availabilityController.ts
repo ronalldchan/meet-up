@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AvailabilityService } from "../services/availabilityService";
 import { UserService } from "../services/userService";
 import { User } from "../interfaces/user";
-import { datetimeFormat, getDateTime, isWithinEventRange } from "../utils";
+import { datetimeFormat, getDateTime, getUtcDateTime, isWithinEventRange } from "../utils";
 import { isValid } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ErrorCodes, GetErrorMessages, InsertErrorMessages } from "../errors";
@@ -27,20 +27,21 @@ export class AvailabilityController {
                 return;
             }
             const parsedAvailability: Date[] = availability.map((avail) => fromZonedTime(getDateTime(avail), timezone));
-            if (parsedAvailability.some((date) => !isValid(date))) {
+            if (parsedAvailability.some((date) => !isValid(date) || date.getMinutes() % 15 != 0)) {
                 res.status(400).json({
                     error: ErrorCodes.BAD_REQUEST,
                     message: InsertErrorMessages.INVALID_DATETIME,
                 });
                 return;
             }
-            const eventStart = getDateTime(event.startDate + " " + event.startTime);
-            const eventEnd = getDateTime(event.endDate + " " + event.endTime);
+            const eventStart = getUtcDateTime(event.startDate, event.startTime, timezone);
+            const eventEnd = getUtcDateTime(event.endDate, event.endTime, timezone);
             if (parsedAvailability.some((date) => !isWithinEventRange(eventStart, eventEnd, date))) {
                 res.status(400).json({
                     error: ErrorCodes.BAD_REQUEST,
                     message: "Datetimes are not within event range",
                 });
+                return;
             }
             const parsedUtcAvailability: string[] = parsedAvailability.map((pa) =>
                 formatInTimeZone(pa, "UTC", datetimeFormat)
