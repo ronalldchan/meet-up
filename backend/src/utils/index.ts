@@ -1,9 +1,9 @@
-import { isValid, parse } from "date-fns";
+import { isAfter, isBefore, isValid, parse } from "date-fns";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 
 export const dateFormat: string = "yyyy-MM-dd";
 export const timeFormat: string = "HH:mm";
-const datetimeFormat: string = dateFormat + " " + timeFormat;
+export const datetimeFormat: string = dateFormat + " " + timeFormat;
 
 export function generateNRandomId(n: number) {
     const min = Math.pow(10, n - 1);
@@ -19,14 +19,22 @@ export function getUtcDateTime(date: string, time: string, timezone: string): Da
     return fromZonedTime(getDateTime(date + " " + time), timezone);
 }
 
-export function isValidTime(timeString: string) {
-    return isValid(parse(timeString, timeFormat, new Date()));
-}
-
-export function isValidDate(dateString: string): boolean {
-    return isValid(parse(dateString, dateFormat, new Date()));
-}
-
 export function isValidInput(input: string): boolean {
     return !input || input.length < 3;
+}
+
+export function isWithinEventRange(eventStart: Date, eventEnd: Date, checkDate: Date): boolean {
+    if (isBefore(checkDate, eventStart)) return false;
+    if (isAfter(checkDate, eventEnd)) return false;
+    const startTime = { hours: eventStart.getUTCHours(), minutes: eventStart.getUTCMinutes };
+    const endTime = { hours: eventEnd.getUTCHours(), minutes: eventEnd.getUTCMinutes };
+    const checkTime = { hours: checkDate.getUTCHours(), minutes: checkDate.getUTCMinutes };
+    if (
+        checkTime.hours < startTime.hours ||
+        (checkTime.hours == startTime.hours && checkTime.minutes < startTime.minutes)
+    )
+        return false;
+    if (endTime.hours < checkTime.hours || (endTime.hours == checkTime.hours && endTime.minutes < checkTime.minutes))
+        return false;
+    return true;
 }

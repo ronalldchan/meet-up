@@ -2,13 +2,13 @@ import { FieldPacket, ResultSetHeader } from "mysql2";
 import pool from "../db";
 
 export class AvailabilityService {
-    static async addAvailability(userId: number, availability: string): Promise<boolean> {
-        const sql = "INSERT IGNORE INTO availability (user_id, available) values (?, ?)";
+    static async addAvailability(userId: number, availability: string[]) {
+        const sql = "INSERT IGNORE INTO availability (user_id, available) VALUES ?";
         try {
-            await pool.execute(sql, [userId, availability]);
-            return true;
+            const values = availability.map((a) => [userId, a]);
+            await pool.query(sql, [values]);
         } catch (error) {
-            throw new Error("Database query failed");
+            throw error;
         }
     }
 
