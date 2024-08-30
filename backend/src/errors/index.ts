@@ -1,5 +1,33 @@
 import { dateFormat, timeFormat } from "../utils";
 
+export class BadRequestError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "BadRequestError";
+    }
+}
+
+export class ValidationError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "ValidationError";
+    }
+}
+
+export class DatabaseError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "DatabaseError";
+    }
+}
+
+export class NotFoundError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = "NotFoundError";
+    }
+}
+
 export const ErrorCodes = {
     BAD_REQUEST: "BAD REQUEST",
     INSERT_FAILED: "INSERT_FAILED",
@@ -10,10 +38,14 @@ export const ErrorCodes = {
     SERVER_ERROR: "SERVER_ERROR",
 };
 
+export const GeneralErrorMessages = {
+    MISSING_INVALID_PARAMETERS: "Required parameters are missing or invalid.",
+    UNKNOWN: "Unkown error occured. Please try again later.",
+};
+
 export const InsertErrorMessages = {
     INSERT_FAILED: "Failed to insert the record. Please try again.",
     DUPLICATE_ENTRY: "Duplicate entry detected.",
-    MISSING_PARAMETERS: "Required parameters are missing or invalid.",
     INVALID_DATETIME: `Invalid date, time, or timezone. Date should be '${dateFormat}', time should be '${timeFormat}', timezone should be in IANA format`,
 };
 

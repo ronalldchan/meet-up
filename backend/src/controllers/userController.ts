@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { generateNRandomId } from "../utils";
 import { User } from "../interfaces/user";
-import { ErrorCodes, GetErrorMessages, InsertErrorMessages } from "../errors";
+import { ErrorCodes, GeneralErrorMessages, GetErrorMessages, InsertErrorMessages } from "../errors";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 
@@ -43,7 +43,10 @@ export class UserController {
         const { name } = req.body;
         try {
             if (!eventId || !name || isNaN(parseInt(eventId))) {
-                res.status(400).json({ error: "Bad Request", message: InsertErrorMessages.MISSING_PARAMETERS });
+                res.status(400).json({
+                    error: "Bad Request",
+                    message: GeneralErrorMessages.MISSING_INVALID_PARAMETERS,
+                });
                 return;
             }
             const userId = generateNRandomId(8);
