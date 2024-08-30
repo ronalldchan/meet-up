@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
-import { BadRequestError, GeneralErrorMessages, GetErrorMessages, NotFoundError, ValidationError } from "../errors";
+import { BadRequestError, GeneralErrorMessages, NotFoundError, ValidationError } from "../errors";
+import { isValidIdString } from "../utils";
 
 export class EventController {
     async createEvent(req: Request, res: Response) {
@@ -16,10 +17,7 @@ export class EventController {
             switch (true) {
                 case error instanceof BadRequestError:
                 case error instanceof ValidationError:
-                    res.status(400).json({
-                        error: error.name,
-                        message: error.message,
-                    });
+                    res.status(400);
                     break;
                 default:
                     return res.status(500).json({ error: error.name, message: error.message });
@@ -31,8 +29,7 @@ export class EventController {
     async getEvent(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            const eventIdRegex: RegExp = /^[1-9][0-9]*$/;
-            if (!eventIdRegex.test(eventId)) {
+            if (!isValidIdString(eventId)) {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
             const eventRow: Event = await EventService.getEvent(Number(eventId));
@@ -46,7 +43,8 @@ export class EventController {
                     res.status(404);
                     break;
                 default:
-                    return res.status(500).json({ error: error.name, message: GeneralErrorMessages.UNKNOWN });
+                    res.status(500);
+                    break;
             }
             return res.json({ error: error.name, message: error.message });
         }

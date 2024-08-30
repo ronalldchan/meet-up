@@ -1,40 +1,36 @@
 import { Request, Response } from "express";
 import { UserService } from "../services/userService";
-import { generateNRandomId } from "../utils";
+import { isValidIdString } from "../utils";
 import { User } from "../interfaces/user";
-import { ErrorCodes, GeneralErrorMessages, GetErrorMessages, InsertErrorMessages } from "../errors";
-import { EventService } from "../services/eventService";
-import { Event } from "../interfaces/event";
+import { BadRequestError, ConflictError, GeneralErrorMessages, NotFoundError } from "../errors";
 
 export class UserController {
     async getUsersFromEvent(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            const parsedEventId: number = parseInt(eventId);
-            if (isNaN(parsedEventId)) {
-                res.status(400).json({
-                    error: ErrorCodes.BAD_REQUEST,
-                    message: "Event ID should be a number",
-                });
-                return;
+            if (!isValidIdString(eventId)) {
+                throw new BadRequestError("Event ID should be a number");
             }
-            const event: Event | null = await EventService.getEvent(parsedEventId);
-            if (!event) {
-                res.status(404).json({
-                    error: ErrorCodes.GET_NOT_FOUND,
-                    message: `Event with ID ${eventId} does not exist.`,
-                });
-                return;
-            }
-            const users: User[] = await UserService.getUsersFromEvent(parsedEventId);
-            res.status(200).json({
+            const users: User[] = await UserService.getUsersFromEvent(Number(eventId));
+            return res.status(200).json({
                 users: users.map(({ userId, name }) => ({
                     userId,
                     name,
                 })),
             });
         } catch (error: any) {
-            res.status(500).json({ error: error.message, message: error.message });
+            switch (true) {
+                case error instanceof BadRequestError:
+                    res.status(400);
+                    break;
+                case error instanceof NotFoundError:
+                    res.status(404);
+                    break;
+                default:
+                    res.status(500);
+                    break;
+            }
+            return res.json({ error: error.name, message: error.message });
         }
     }
 
@@ -42,33 +38,27 @@ export class UserController {
         const { eventId } = req.params;
         const { name } = req.body;
         try {
-            if (!eventId || !name || isNaN(parseInt(eventId))) {
-                res.status(400).json({
-                    error: "Bad Request",
-                    message: GeneralErrorMessages.MISSING_INVALID_PARAMETERS,
-                });
-                return;
+            if (!eventId || !name || !isValidIdString(eventId)) {
+                throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
-            const userId = generateNRandomId(8);
-            await UserService.createUser(userId, parseInt(eventId), name);
-            res.status(200).json({ message: "Successfully created new user", userId: userId });
+            const userId = await UserService.createUser(parseInt(eventId), name);
+            return res.status(200).json({ message: "Successfully created new user", userId: userId });
         } catch (error: any) {
-            switch (error.code) {
-                case "ER_DUP_ENTRY":
-                    res.status(409).json({
-                        error: ErrorCodes.INSERT_DUPLICATE,
-                        message: InsertErrorMessages.DUPLICATE_ENTRY,
-                    });
+            switch (true) {
+                case error instanceof BadRequestError:
+                    res.status(400);
                     break;
-                case "ER_NO_REFERENCED_ROW_2":
-                    res.status(404).json({
-                        error: ErrorCodes.INSERT_FAILED,
-                        message: GetErrorMessages.RECORD_NOT_FOUND,
-                    });
+                case error instanceof NotFoundError:
+                    res.status(404);
+                    break;
+                case error instanceof ConflictError:
+                    res.status(409);
                     break;
                 default:
-                    res.status(500).json({ error: error.code, message: error.message });
+                    res.status(500);
+                    break;
             }
+            return res.json({ error: error.name, message: error.message });
         }
     }
 }

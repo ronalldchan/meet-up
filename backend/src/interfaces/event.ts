@@ -9,7 +9,6 @@ export interface Event {
     endDate: string;
     startTime: string;
     endTime: string;
-    timezone: string;
 }
 
 export function getSqlEventStruct(data: any): Event {
@@ -20,6 +19,5 @@ export function getSqlEventStruct(data: any): Event {
         endDate: data.end_date,
         startTime: data.start_time.substring(0, 5),
         endTime: data.end_time.substring(0, 5),
-        timezone: data.timezone,
     };
 }

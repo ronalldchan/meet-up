@@ -2,7 +2,7 @@ import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
 import { Event, getSqlEventStruct } from "../interfaces/event";
 import { dateFormat, generateNRandomId, getUtcDateTime, isValidInput, timeFormat } from "../utils";
-import { DatabaseError, InsertErrorMessages, NotFoundError, ValidationError } from "../errors";
+import { DatabaseError, GeneralErrorMessages, NotFoundError, ValidationError } from "../errors";
 import { getMinutes, isAfter, isValid } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
@@ -37,7 +37,7 @@ export class EventService {
             getMinutes(parsedStartDate) % 15 != 0 ||
             getMinutes(parsedEndDate) % 15 != 0
         ) {
-            throw new ValidationError(InsertErrorMessages.INVALID_DATETIME);
+            throw new ValidationError(GeneralErrorMessages.INVALID_DATETIME);
         }
 
         try {

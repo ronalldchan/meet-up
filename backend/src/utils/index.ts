@@ -4,6 +4,11 @@ import { fromZonedTime, toZonedTime } from "date-fns-tz";
 export const dateFormat: string = "yyyy-MM-dd";
 export const timeFormat: string = "HH:mm";
 export const datetimeFormat: string = dateFormat + " " + timeFormat;
+const eventIdRegex: RegExp = /^[1-9][0-9]*$/;
+
+export function isValidIdString(input: string): boolean {
+    return eventIdRegex.test(input);
+}
 
 export function generateNRandomId(n: number) {
     const min = Math.pow(10, n - 1);

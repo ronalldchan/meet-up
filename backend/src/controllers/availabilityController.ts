@@ -5,7 +5,6 @@ import { User } from "../interfaces/user";
 import { datetimeFormat, getDateTime, getUtcDateTime, isWithinEventRange } from "../utils";
 import { isValid } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { ErrorCodes, GetErrorMessages, InsertErrorMessages } from "../errors";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 
@@ -18,30 +17,30 @@ export class AvailabilityController {
             const parsedUserId = parseInt(userId);
             const event: Event | null = await EventService.getEvent(parsedEventId);
             if (!event) {
-                res.status(404).json({ error: ErrorCodes.BAD_REQUEST, message: GetErrorMessages.RECORD_NOT_FOUND });
+                // res.status(404).json({ error: ErrorCodes.BAD_REQUEST, message: GetErrorMessages.RECORD_NOT_FOUND });
                 return;
             }
             const user: User = await UserService.getUser(parsedUserId);
             if (user.eventId != parsedEventId) {
-                res.status(400).json({ error: ErrorCodes.BAD_REQUEST, message: "User not part of this event" });
+                // res.status(400).json({ error: ErrorCodes.BAD_REQUEST, message: "User not part of this event" });
                 return;
             }
             const parsedAvailability: Date[] = availability.map((avail) => fromZonedTime(getDateTime(avail), timezone));
             if (parsedAvailability.some((date) => !isValid(date) || date.getMinutes() % 15 != 0)) {
                 res.status(400).json({
-                    error: ErrorCodes.BAD_REQUEST,
-                    message: InsertErrorMessages.INVALID_DATETIME,
+                    // error: ErrorCodes.BAD_REQUEST,
+                    // message: InsertErrorMessages.INVALID_DATETIME,
                 });
                 return;
             }
             const eventStart = getUtcDateTime(event.startDate, event.startTime, timezone);
             const eventEnd = getUtcDateTime(event.endDate, event.endTime, timezone);
             if (parsedAvailability.some((date) => !isWithinEventRange(eventStart, eventEnd, date))) {
-                res.status(400).json({
-                    error: ErrorCodes.BAD_REQUEST,
-                    message: "Datetimes are not within event range",
-                });
-                return;
+                // res.status(400).json({
+                //     error: ErrorCodes.BAD_REQUEST,
+                //     message: "Datetimes are not within event range",
+                // });
+                // return;
             }
             const parsedUtcAvailability: string[] = parsedAvailability.map((pa) =>
                 formatInTimeZone(pa, "UTC", datetimeFormat)
