@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
-import { BadRequestError, GeneralErrorMessages, NotFoundError, ValidationError } from "../errors";
+import { BadRequestError, GeneralErrorMessages, handleErrorResponse } from "../errors";
 import { isValidIdString } from "../utils";
 
 export class EventController {
@@ -14,15 +14,7 @@ export class EventController {
             const eventId = await EventService.createEvent(name, startDate, endDate, startTime, endTime, timezone);
             return res.status(201).json({ message: "Event created successfully", eventId: eventId });
         } catch (error: any) {
-            switch (true) {
-                case error instanceof BadRequestError:
-                case error instanceof ValidationError:
-                    res.status(400);
-                    break;
-                default:
-                    return res.status(500).json({ error: error.name, message: error.message });
-            }
-            return res.json({ error: error.name, message: error.message });
+            handleErrorResponse(error, res);
         }
     }
 
@@ -35,18 +27,7 @@ export class EventController {
             const eventRow: Event = await EventService.getEvent(Number(eventId));
             return res.status(200).json(eventRow);
         } catch (error: any) {
-            switch (true) {
-                case error instanceof BadRequestError:
-                    res.status(400);
-                    break;
-                case error instanceof NotFoundError:
-                    res.status(404);
-                    break;
-                default:
-                    res.status(500);
-                    break;
-            }
-            return res.json({ error: error.name, message: error.message });
+            handleErrorResponse(error, res);
         }
     }
 }

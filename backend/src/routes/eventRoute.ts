@@ -20,4 +20,6 @@ router
     .put(availabilityController.addAvailability)
     .delete(availabilityController.removeAvailability);
 
+router.route("/:eventId/users/availability").get();
+
 export default router;

@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { isValidIdString } from "../utils";
 import { User } from "../interfaces/user";
-import { BadRequestError, ConflictError, GeneralErrorMessages, NotFoundError } from "../errors";
+import { BadRequestError, GeneralErrorMessages, handleErrorResponse } from "../errors";
 
 export class UserController {
     async getUsersFromEvent(req: Request, res: Response) {
@@ -19,18 +19,7 @@ export class UserController {
                 })),
             });
         } catch (error: any) {
-            switch (true) {
-                case error instanceof BadRequestError:
-                    res.status(400);
-                    break;
-                case error instanceof NotFoundError:
-                    res.status(404);
-                    break;
-                default:
-                    res.status(500);
-                    break;
-            }
-            return res.json({ error: error.name, message: error.message });
+            handleErrorResponse(error, res);
         }
     }
 
@@ -44,21 +33,7 @@ export class UserController {
             const userId = await UserService.createUser(parseInt(eventId), name);
             return res.status(200).json({ message: "Successfully created new user", userId: userId });
         } catch (error: any) {
-            switch (true) {
-                case error instanceof BadRequestError:
-                    res.status(400);
-                    break;
-                case error instanceof NotFoundError:
-                    res.status(404);
-                    break;
-                case error instanceof ConflictError:
-                    res.status(409);
-                    break;
-                default:
-                    res.status(500);
-                    break;
-            }
-            return res.json({ error: error.name, message: error.message });
+            handleErrorResponse(error, res);
         }
     }
 }
