@@ -35,11 +35,8 @@ export class UserService {
 
     static async getUser(userId: number): Promise<User> {
         const sql = "SELECT * FROM users WHERE user_id =  ?";
-        try {
-            const [userRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [userId]);
-            return getUserStruct(userRows[0]);
-        } catch (error) {
-            throw error;
-        }
+        const [userRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [userId]);
+        if (userRows.length <= 0) throw new NotFoundError(`User ID of ${userId} does not exist`);
+        return getUserStruct(userRows[0]);
     }
 }

@@ -1,5 +1,5 @@
-import { isAfter, isBefore, isValid, parse } from "date-fns";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
+import { isAfter, isBefore, parse } from "date-fns";
+import { fromZonedTime } from "date-fns-tz";
 
 export const dateFormat: string = "yyyy-MM-dd";
 export const timeFormat: string = "HH:mm";
@@ -16,12 +16,20 @@ export function generateNRandomId(n: number) {
     return Math.floor(min + Math.random() * (max - min + 1));
 }
 
-export function getDateTime(date: string): Date {
-    return parse(date, datetimeFormat, new Date());
+export function parseDate(date: string): Date {
+    return parse(date, dateFormat, new Date());
 }
 
-export function getUtcDateTime(date: string, time: string, timezone: string): Date {
-    return fromZonedTime(getDateTime(date + " " + time), timezone);
+export function parseTime(time: string): Date {
+    return parse(time, timeFormat, new Date());
+}
+
+export function parseDateTime(datetime: string): Date {
+    return parse(datetime, datetimeFormat, new Date());
+}
+
+export function parseUtcDateTime(date: string, time: string, timezone: string): Date {
+    return fromZonedTime(parseDateTime(date + " " + time), timezone);
 }
 
 export function isValidInput(input: string): boolean {

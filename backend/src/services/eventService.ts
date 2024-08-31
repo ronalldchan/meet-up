@@ -1,7 +1,7 @@
 import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
 import { Event, getSqlEventStruct } from "../interfaces/event";
-import { dateFormat, generateNRandomId, getUtcDateTime, isValidInput, timeFormat } from "../utils";
+import { dateFormat, generateNRandomId, parseUtcDateTime, isValidInput, timeFormat } from "../utils";
 import { GeneralErrorMessages } from "../errors";
 import { getMinutes, isAfter, isValid } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
@@ -29,8 +29,8 @@ export class EventService {
         if (isValidInput(name)) {
             throw new ValidationError("Name should be at least 3 characters long");
         }
-        const parsedStartDate: Date = getUtcDateTime(localStartDate, localStartTime, timezone);
-        const parsedEndDate: Date = getUtcDateTime(localEndDate, localEndTime, timezone);
+        const parsedStartDate: Date = parseUtcDateTime(localStartDate, localStartTime, timezone);
+        const parsedEndDate: Date = parseUtcDateTime(localEndDate, localEndTime, timezone);
         if (
             !isValid(parsedStartDate) ||
             !isValid(parsedEndDate) ||

@@ -31,7 +31,7 @@ export class UserController {
             if (!eventId || !name || !isValidIdString(eventId)) {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
-            const userId = await UserService.createUser(parseInt(eventId), name);
+            const userId = await UserService.createUser(Number(eventId), name);
             return res.status(200).json({ message: "Successfully created new user", userId: userId });
         } catch (error: any) {
             handleErrorResponse(error, res);

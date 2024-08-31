@@ -1,15 +1,13 @@
 import { FieldPacket, ResultSetHeader } from "mysql2";
 import pool from "../db";
+import { UserService } from "./userService";
 
 export class AvailabilityService {
     static async addAvailability(userId: number, availability: string[]) {
         const sql = "INSERT IGNORE INTO availability (user_id, available) VALUES ?";
-        try {
-            const values = availability.map((a) => [userId, a]);
-            await pool.query(sql, [values]);
-        } catch (error) {
-            throw error;
-        }
+        await UserService.getUser(userId);
+        const values = availability.map((a) => [userId, a]);
+        await pool.query(sql, [values]);
     }
 
     static async removeAvailability(userId: number, availability: string): Promise<boolean> {
