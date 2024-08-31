@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { UserService } from "../services/userService";
 import { isValidIdString } from "../utils";
 import { User } from "../interfaces/user";
-import { BadRequestError, GeneralErrorMessages, handleErrorResponse } from "../errors";
+import { GeneralErrorMessages, handleErrorResponse } from "../errors";
+import { BadRequestError } from "../errors/Errors";
 
 export class UserController {
     async getUsersFromEvent(req: Request, res: Response) {

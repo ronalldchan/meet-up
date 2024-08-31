@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
-import { BadRequestError, GeneralErrorMessages, handleErrorResponse } from "../errors";
+import { GeneralErrorMessages, handleErrorResponse } from "../errors";
 import { isValidIdString } from "../utils";
+import { BadRequestError } from "../errors/Errors";
 
 export class EventController {
     async createEvent(req: Request, res: Response) {

@@ -2,9 +2,10 @@ import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
 import { Event, getSqlEventStruct } from "../interfaces/event";
 import { dateFormat, generateNRandomId, getUtcDateTime, isValidInput, timeFormat } from "../utils";
-import { DatabaseError, GeneralErrorMessages, NotFoundError, ValidationError } from "../errors";
+import { GeneralErrorMessages } from "../errors";
 import { getMinutes, isAfter, isValid } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
+import { DatabaseError, NotFoundError, ValidationError } from "../errors/Errors";
 
 export class EventService {
     static async getEvent(eventId: number): Promise<Event> {

@@ -3,7 +3,8 @@ import pool from "../db";
 import { getUserStruct, User } from "../interfaces/user";
 import { EventService } from "./eventService";
 import { generateNRandomId } from "../utils";
-import { ConflictError, DatabaseError, GeneralErrorMessages, NotFoundError } from "../errors";
+import { GeneralErrorMessages } from "../errors";
+import { ConflictError, DatabaseError, NotFoundError } from "../errors/Errors";
 
 export class UserService {
     static async getUsersFromEvent(eventId: number): Promise<User[]> {
