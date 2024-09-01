@@ -36,7 +36,7 @@ export function isValidInput(input: string): boolean {
     return !input || input.length < 3;
 }
 
-export function isWithinEventRange(eventStart: Date, eventEnd: Date, checkDate: Date): boolean {
+export function isWithinEventRange(checkDate: Date, eventStart: Date, eventEnd: Date): boolean {
     if (isBefore(checkDate, eventStart)) return false;
     if (isAfter(checkDate, eventEnd)) return false;
     const startTime = { hours: eventStart.getUTCHours(), minutes: eventStart.getUTCMinutes };
