@@ -3,7 +3,7 @@ import { AvailabilityService } from "../services/availabilityService";
 import { datetimeFormat, parseDateTime, parseUtcDateTime, isValidIdString, isWithinEventRange } from "../utils";
 import { isValid } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { BadRequestError } from "../errors/Errors";
+import { BadRequestError } from "../errors/errors";
 import { GeneralErrorMessages } from "../errors";
 
 export class AvailabilityController {

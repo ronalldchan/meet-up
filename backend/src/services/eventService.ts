@@ -5,7 +5,7 @@ import { dateFormat, generateNRandomId, parseUtcDateTime, isValidInput, timeForm
 import { GeneralErrorMessages } from "../errors";
 import { getMinutes, isAfter, isValid } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/Errors";
+import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
 
 export class EventService {
     static async getEvent(eventId: number): Promise<Event> {

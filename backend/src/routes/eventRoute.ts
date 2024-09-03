@@ -2,12 +2,28 @@ import express, { Request, Response } from "express";
 import { EventController } from "../controllers/eventController";
 import { UserController } from "../controllers/userController";
 import { AvailabilityController } from "../controllers/availabilityController";
+import { isValidIdString } from "../utils";
+import { BadRequestError } from "../errors/errors";
 
 const router = express.Router();
 
 const eventController: EventController = new EventController();
 const userController: UserController = new UserController();
 const availabilityController: AvailabilityController = new AvailabilityController();
+
+router.param("eventId", (req, res, next, eventId) => {
+    if (!isValidIdString(eventId)) {
+        return res.status(400).json({ error: BadRequestError.name, message: "Event ID is not proper format" });
+    }
+    next();
+});
+
+router.param("userId", (req, res, next, userId) => {
+    if (!isValidIdString(userId)) {
+        return res.status(400).json({ error: BadRequestError.name, message: "User ID is not proper format" });
+    }
+    next();
+});
 
 router.route("/").post(eventController.createEvent);
 

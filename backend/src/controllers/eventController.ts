@@ -3,27 +3,34 @@ import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
 import { isValidIdString, parseDateTime } from "../utils";
-import { BadRequestError } from "../errors/Errors";
+import { BadRequestError } from "../errors/errors";
 import { isValid } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
+import { CreateEvent, CreateEventSchema } from "../schemas/EventRouteSchema";
 
 export class EventController {
     async createEvent(req: Request, res: Response) {
-        const { name, startDate, endDate, startTime, endTime, timezone } = req.body;
         try {
-            if (!(name && startDate && endDate && startTime && endTime && timezone)) {
+            const result = CreateEventSchema.safeParse(req.body);
+            if (!result.success) {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
-            const parsedStartDateTime = parseDateTime(startDate + " " + startTime);
-            const parsedEndDateTime = parseDateTime(endDate + " " + endTime);
+            const body: CreateEvent = result.data;
+            const parsedStartDateTime = parseDateTime(body.startDate + " " + body.startTime);
+            const parsedEndDateTime = parseDateTime(body.endDate + " " + body.endTime);
             if (
                 !isValid(parsedStartDateTime) ||
                 !isValid(parsedEndDateTime) ||
-                !isValid(fromZonedTime(new Date(), timezone))
+                !isValid(fromZonedTime(new Date(), body.timezone))
             )
                 throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
 
-            const eventId = await EventService.createEvent(name, parsedStartDateTime, parsedEndDateTime, timezone);
+            const eventId = await EventService.createEvent(
+                body.name,
+                parsedStartDateTime,
+                parsedEndDateTime,
+                body.timezone
+            );
             return res.status(201).json({ message: "Event created successfully", eventId: eventId });
         } catch (error: any) {
             handleErrorResponse(error, res);
@@ -33,9 +40,6 @@ export class EventController {
     async getEvent(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            if (!isValidIdString(eventId)) {
-                throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
-            }
             const eventRow: Event = await EventService.getEvent(Number(eventId));
             return res.status(200).json(eventRow);
         } catch (error: any) {
