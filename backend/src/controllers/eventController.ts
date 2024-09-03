@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
-import { isValidIdString, parseDateTime } from "../utils";
+import { isValidIdString, isValidTimezone, parseDateTime } from "../utils";
 import { BadRequestError } from "../errors/errors";
 import { isValid } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
@@ -18,13 +18,8 @@ export class EventController {
             const body: CreateEvent = result.data;
             const parsedStartDateTime = parseDateTime(body.startDate + " " + body.startTime);
             const parsedEndDateTime = parseDateTime(body.endDate + " " + body.endTime);
-            if (
-                !isValid(parsedStartDateTime) ||
-                !isValid(parsedEndDateTime) ||
-                !isValid(fromZonedTime(new Date(), body.timezone))
-            )
+            if (!isValid(parsedStartDateTime) || !isValid(parsedEndDateTime) || !isValidTimezone(body.timezone))
                 throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
-
             const eventId = await EventService.createEvent(
                 body.name,
                 parsedStartDateTime,

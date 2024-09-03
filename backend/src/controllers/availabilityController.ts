@@ -1,47 +1,33 @@
 import { Request, Response } from "express";
 import { AvailabilityService } from "../services/availabilityService";
-import { datetimeFormat, parseDateTime, parseUtcDateTime, isValidIdString, isWithinEventRange } from "../utils";
+import { parseDateTime, isValidTimezone } from "../utils";
 import { isValid } from "date-fns";
-import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { BadRequestError } from "../errors/errors";
-import { GeneralErrorMessages } from "../errors";
+import { GeneralErrorMessages, handleErrorResponse } from "../errors";
+import { AddAvailability, AddAvailabilitySchema } from "../schemas/AvailabilityRouteSchema";
 
 export class AvailabilityController {
     async addAvailability(req: Request, res: Response) {
         const { eventId, userId } = req.params;
-        const { availability, timezone }: { availability: string[]; timezone: string } = req.body;
         try {
-            if (!isValidIdString(eventId) || !isValidIdString(userId) || !availability || !timezone) {
+            const result = AddAvailabilitySchema.safeParse(req.body);
+            if (!result.success) {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
-
-            // const parsedAvailability: Date[] = availability.map((avail) =>
-            //     fromZonedTime(parseDateTime(avail), timezone)
-            // );
-            // if (parsedAvailability.some((date) => !isValid(date) || date.getMinutes() % 15 != 0)) {
-            //     res.status(400).json({
-            //         // error: ErrorCodes.BAD_REQUEST,
-            //         // message: InsertErrorMessages.INVALID_DATETIME,
-            //     });
-            //     return;
-            // }
-            // const eventStart = parseUtcDateTime(event.startDate, event.startTime, timezone);
-            // const eventEnd = parseUtcDateTime(event.endDate, event.endTime, timezone);
-            // if (parsedAvailability.some((date) => !isWithinEventRange(eventStart, eventEnd, date))) {
-            //     // res.status(400).json({
-            //     //     error: ErrorCodes.BAD_REQUEST,
-            //     //     message: "Datetimes are not within event range",
-            //     // });
-            //     // return;
-            // }
-            // const parsedUtcAvailability: string[] = parsedAvailability.map((pa) =>
-            //     formatInTimeZone(pa, "UTC", datetimeFormat)
-            // );
-            // await AvailabilityService.addAvailability(parseInt(userId), parsedUtcAvailability);
-
-            // res.status(200).json({ message: "Successfully added availability" });
+            const body: AddAvailability = result.data;
+            const parsedAvailability: Date[] = body.availability.map((avail) => parseDateTime(avail));
+            if (parsedAvailability.some((date) => !isValid(date)) || !isValidTimezone(body.timezone)) {
+                throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
+            }
+            await AvailabilityService.addAvailability(
+                Number(eventId),
+                Number(userId),
+                parsedAvailability,
+                body.timezone
+            );
+            return res.status(200).json({ message: "Successfully added availability" });
         } catch (error: any) {
-            res.status(500).json({ error: "Failed to insert availability", message: error.message });
+            handleErrorResponse(error, res);
         }
     }
 
