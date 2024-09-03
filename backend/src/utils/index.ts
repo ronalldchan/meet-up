@@ -33,7 +33,7 @@ export function parseUtcDateTime(date: string, time: string, timezone: string): 
 }
 
 export function isValidInput(input: string): boolean {
-    return !input || input.length < 3;
+    return input.length >= 3;
 }
 
 export function isWithinEventRange(checkDate: Date, eventStart: Date, eventEnd: Date): boolean {

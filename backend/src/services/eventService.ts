@@ -24,7 +24,7 @@ export class EventService {
         const eventId: number = generateNRandomId(8);
         const sql: string =
             "INSERT INTO events (event_id, name, start_date, end_date, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?)";
-        if (isValidInput(name)) throw new ValidationError("Name should be at least 3 characters long");
+        if (!isValidInput(name)) throw new ValidationError("Name should be at least 3 characters long");
         if (
             !isAfter(localEndDateTime, localStartDateTime) ||
             getMinutes(localStartDateTime) % 15 != 0 ||
