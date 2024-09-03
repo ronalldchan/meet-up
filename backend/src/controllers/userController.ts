@@ -7,21 +7,6 @@ import { BadRequestError } from "../errors/errors";
 import { CreateUser, CreateUserSchema } from "../schemas/UserRouteSchema";
 
 export class UserController {
-    async getUsersFromEvent(req: Request, res: Response) {
-        const { eventId } = req.params;
-        try {
-            const users: User[] = await UserService.getUsersFromEvent(Number(eventId));
-            return res.status(200).json({
-                users: users.map(({ userId, name }) => ({
-                    userId,
-                    name,
-                })),
-            });
-        } catch (error: any) {
-            handleErrorResponse(error, res);
-        }
-    }
-
     async createUser(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
@@ -32,6 +17,21 @@ export class UserController {
             const body: CreateUser = result.data;
             const userId = await UserService.createUser(Number(eventId), body.name);
             return res.status(200).json({ message: "Successfully created new user", userId: userId });
+        } catch (error: any) {
+            handleErrorResponse(error, res);
+        }
+    }
+
+    async getUsersFromEvent(req: Request, res: Response) {
+        const { eventId } = req.params;
+        try {
+            const users: User[] = await UserService.getUsersFromEvent(Number(eventId));
+            return res.status(200).json({
+                users: users.map(({ userId, name }) => ({
+                    userId,
+                    name,
+                })),
+            });
         } catch (error: any) {
             handleErrorResponse(error, res);
         }

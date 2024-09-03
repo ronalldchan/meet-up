@@ -29,7 +29,7 @@ router.route("/").post(eventController.createEvent);
 
 router.route("/:eventId").get(eventController.getEvent);
 
-router.route("/:eventId/users").get(userController.getUsersFromEvent).post(userController.createUser);
+router.route("/:eventId/users").post(userController.createUser).get(userController.getUsersFromEvent);
 
 router
     .route("/:eventId/users/:userId")
