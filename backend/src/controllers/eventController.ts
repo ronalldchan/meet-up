@@ -2,16 +2,15 @@ import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
-import { isValidIdString, isValidTimezone, parseDateTime } from "../utils";
+import { isValidTimezone, parseDateTime } from "../utils";
 import { BadRequestError } from "../errors/errors";
 import { isValid } from "date-fns";
-import { fromZonedTime } from "date-fns-tz";
-import { CreateEvent, CreateEventSchema } from "../schemas/EventRouteSchema";
+import { CreateEvent, createEventSchema } from "../schemas/EventRouteSchema";
 
 export class EventController {
     async createEvent(req: Request, res: Response) {
         try {
-            const result = CreateEventSchema.safeParse(req.body);
+            const result = createEventSchema.safeParse(req.body);
             if (!result.success) {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }

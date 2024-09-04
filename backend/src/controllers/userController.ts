@@ -4,13 +4,13 @@ import { isValidIdString } from "../utils";
 import { User } from "../interfaces/user";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
 import { BadRequestError } from "../errors/errors";
-import { CreateUser, CreateUserSchema } from "../schemas/UserRouteSchema";
+import { CreateUser, createUserSchema } from "../schemas/UserRouteSchema";
 
 export class UserController {
     async createUser(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            const result = CreateUserSchema.safeParse(req.body);
+            const result = createUserSchema.safeParse(req.body);
             if (!result.success) {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }

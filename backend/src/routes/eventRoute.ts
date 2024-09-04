@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import { EventController } from "../controllers/eventController";
 import { UserController } from "../controllers/userController";
 import { AvailabilityController } from "../controllers/availabilityController";

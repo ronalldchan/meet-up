@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-export const CreateUserSchema = z.object({
+export const createUserSchema = z.object({
     name: z.string().min(3),
 });
 
-export type CreateUser = z.infer<typeof CreateUserSchema>;
+export type CreateUser = z.infer<typeof createUserSchema>;

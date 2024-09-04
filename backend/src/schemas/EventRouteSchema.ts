@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const CreateEventSchema = z.object({
+export const createEventSchema = z.object({
     name: z.string().min(3),
     startDate: z.string().min(1),
     endDate: z.string().min(1),
@@ -9,4 +9,4 @@ export const CreateEventSchema = z.object({
     timezone: z.string().min(1),
 });
 
-export type CreateEvent = z.infer<typeof CreateEventSchema>;
+export type CreateEvent = z.infer<typeof createEventSchema>;

@@ -33,10 +33,15 @@ export class AvailabilityService {
         await pool.query(sql, [values]);
     }
 
-    static async removeAvailability(userId: number, availability: string): Promise<boolean> {
+    static async removeAvailability(
+        eventId: number,
+        userId: number,
+        localAvailability: Date[],
+        timezone: string
+    ): Promise<boolean> {
         const sql = "DELETE FROM availability WHERE user_id = ? and availability = ?";
         try {
-            const [result]: [ResultSetHeader, FieldPacket[]] = await pool.query(sql, [userId, availability]);
+            const [result]: [ResultSetHeader, FieldPacket[]] = await pool.query(sql, [userId, localAvailability]);
             return result.affectedRows > 0;
         } catch (error) {
             throw new Error("Database deletion failed");
