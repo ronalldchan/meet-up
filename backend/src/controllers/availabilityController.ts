@@ -30,7 +30,7 @@ export class AvailabilityController {
                 parsedAvailability,
                 body.timezone
             );
-            return res.status(200).json({ message: "Successfully added availability" });
+            return res.status(200).json({ message: "Successfully added availabilities." });
         } catch (error: any) {
             handleErrorResponse(error, res);
         }
@@ -54,7 +54,7 @@ export class AvailabilityController {
                 parsedAvailability,
                 body.timezone
             );
-            return res.status(200).json({ message: "Successfully added availability" });
+            return res.status(200).json({ message: "Successfully removed availabilities." });
         } catch (error: any) {
             handleErrorResponse(error, res);
         }
