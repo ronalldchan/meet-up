@@ -1,13 +1,14 @@
-import { FieldPacket, ResultSetHeader } from "mysql2";
 import pool from "../db";
 import { UserService } from "./userService";
 import { EventService } from "./eventService";
 import { User } from "../interfaces/user";
 import { BadRequestError, NotFoundError } from "../errors/errors";
-import { formatInTimeZone, fromZonedTime, toZonedTime } from "date-fns-tz";
+import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { Event } from "../interfaces/event";
 import { datetimeFormat, isWithinEventRange, parseDateTime } from "../utils";
 import { GeneralErrorMessages } from "../errors";
+import { FieldPacket, RowDataPacket } from "mysql2";
+import { Availability, getSqlAvailabilityStruct } from "../interfaces/availability";
 
 export class AvailabilityService {
     static async addAvailability(eventId: number, userId: number, localAvailability: Date[], timezone: string) {
@@ -52,5 +53,12 @@ export class AvailabilityService {
         console.log(parsedUtcAvailability);
         const sql = "DELETE FROM availability WHERE user_id = ? and available IN (?)";
         await pool.query(sql, [userId, parsedUtcAvailability]);
+    }
+
+    static async getAvailability(eventId: number): Promise<Availability[]> {
+        const event: Event = await EventService.getEvent(eventId);
+        const sql = "SELECT A.* FROM availability a JOIN users u ON a.user_id = u.user_id WHERE u.event_id = ?";
+        const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
+        return rows.map((data) => getSqlAvailabilityStruct(data));
     }
 }

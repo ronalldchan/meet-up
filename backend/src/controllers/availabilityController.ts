@@ -10,6 +10,7 @@ import {
     RemoveAvailability,
     removeAvailabilitySchema,
 } from "../schemas/AvailabilityRouteSchema";
+import { Availability } from "../interfaces/availability";
 
 export class AvailabilityController {
     async addAvailability(req: Request, res: Response) {
@@ -55,6 +56,16 @@ export class AvailabilityController {
                 body.timezone
             );
             return res.status(200).json({ message: "Successfully removed availabilities." });
+        } catch (error: any) {
+            handleErrorResponse(error, res);
+        }
+    }
+
+    async getAvailabilities(req: Request, res: Response) {
+        const { eventId } = req.params;
+        try {
+            const availabilityRows: Availability[] = await AvailabilityService.getAvailability(Number(eventId));
+            return res.status(200).json({ data: availabilityRows });
         } catch (error: any) {
             handleErrorResponse(error, res);
         }

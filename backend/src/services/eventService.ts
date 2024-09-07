@@ -1,9 +1,9 @@
 import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
 import { Event, getSqlEventStruct } from "../interfaces/event";
-import { dateFormat, generateNRandomId, parseUtcDateTime, isValidInput, timeFormat } from "../utils";
+import { dateFormat, generateNRandomId, isValidInput, timeFormat } from "../utils";
 import { GeneralErrorMessages } from "../errors";
-import { getMinutes, isAfter, isValid } from "date-fns";
+import { getMinutes, isAfter } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
 
