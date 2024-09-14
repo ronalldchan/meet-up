@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
-import { isValidTimezone, parseDateTime } from "../utils";
+import { isValidTimezone, parseDate, parseTime } from "../utils";
 import { BadRequestError } from "../errors/errors";
 import { isValid } from "date-fns";
 import { CreateEvent, createEventSchema } from "../schemas/EventRouteSchema";
@@ -15,14 +15,21 @@ export class EventController {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
             const body: CreateEvent = result.data;
-            const parsedStartDateTime = parseDateTime(body.startDate + " " + body.startTime);
-            const parsedEndDateTime = parseDateTime(body.endDate + " " + body.endTime);
-            if (!isValid(parsedStartDateTime) || !isValid(parsedEndDateTime) || !isValidTimezone(body.timezone))
+            const parsedDates: Date[] = body.dates.map((val) => parseDate(val));
+            const parsedStartTime: Date = parseTime(body.startTime);
+            const parsedEndTime: Date = parseTime(body.endTime);
+            if (
+                parsedDates.some((val) => !isValid(val)) ||
+                !isValid(parsedStartTime) ||
+                !isValid(parsedEndTime) ||
+                !isValidTimezone(body.timezone)
+            )
                 throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
             const eventId = await EventService.createEvent(
                 body.name,
-                parsedStartDateTime,
-                parsedEndDateTime,
+                parsedDates,
+                parsedStartTime,
+                parsedEndTime,
                 body.timezone
             );
             return res.status(201).json({ message: "Event created successfully", eventId: eventId });
