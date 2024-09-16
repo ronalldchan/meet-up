@@ -16,10 +16,6 @@ export function generateNRandomId(n: number) {
     return Math.floor(min + Math.random() * (max - min + 1));
 }
 
-export function parseDate(date: string): Date {
-    return parse(date, dateFormat, new Date());
-}
-
 export function parseTime(time: string): Date {
     return set(parse(time, timeFormat, new Date()), { seconds: 0, milliseconds: 0 });
 }

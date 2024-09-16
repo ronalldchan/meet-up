@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
-import { isValidTimezone, parseDate, parseTime } from "../utils";
+import { isValidTimezone, parseTime } from "../utils";
 import { BadRequestError } from "../errors/errors";
 import { isValid } from "date-fns";
 import { CreateEvent, createEventSchema } from "../schemas/EventRouteSchema";
@@ -15,7 +15,8 @@ export class EventController {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
             const body: CreateEvent = result.data;
-            const parsedDates: Date[] = body.dates.map((val) => parseDate(val));
+            const parsedDates: Date[] = body.dates.map((val) => new Date(val));
+            if (new Set(body.dates).size < body.dates.length) throw new BadRequestError("Duplicate dates detected.");
             const parsedStartTime: Date = parseTime(body.startTime);
             const parsedEndTime: Date = parseTime(body.endTime);
             if (

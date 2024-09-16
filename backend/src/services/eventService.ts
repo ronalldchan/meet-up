@@ -8,16 +8,21 @@ import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
 
 export class EventService {
-    static async getEvent(eventId: number): Promise<Event> {
-        const sql = "SELECT * FROM events WHERE event_id = ?";
-        const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
-        if (rows.length <= 0) throw new NotFoundError(`No event of ID ${eventId} was found.`);
-        return getSqlEventStruct(rows[0]);
+    static async getEvent(eventId: number): Promise<any> {
+        const eventSql = "SELECT * FROM events WHERE event_id = ?";
+        const [eventRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventSql, [eventId]);
+        if (eventRows.length <= 0) throw new NotFoundError(`No event of ID ${eventId} was found.`);
+        const eventDatesSql = "SELECT * FROM event_dates WHERE event_id = ?";
+        const [eventDatesRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventDatesSql, [eventId]);
+        if (eventDatesRows.length <= 0) throw new NotFoundError(`No event dates found.`);
+        let dates: Date[] = eventDatesRows.map((data) => new Date(data.event_date));
+        console.log(eventDatesRows);
+        return { ...getSqlEventStruct(eventRows[0]), dates: dates };
     }
 
     static async createEvent(
         name: string,
-        dates: Date[],
+        localDates: Date[],
         localStartTime: Date,
         localEndTime: Date,
         timezone: string
@@ -31,26 +36,18 @@ export class EventService {
             getMinutes(localEndTime) % 15 != 0
         )
             throw new ValidationError(GeneralErrorMessages.INVALID_DATETIME);
-        const storedDates: Date[] = []; // check all the dates if they span 2 days in utc
-        dates.forEach((date) => {
-            const startDateTime: Date = set(date, {
-                hours: localStartTime.getHours(),
-                minutes: localStartTime.getMinutes(),
-            });
-            const endDateTime: Date = set(date, { hours: localEndTime.getHours(), minutes: localEndTime.getMinutes() });
-            const utcStartDateTime: Date = fromZonedTime(startDateTime, timezone);
-            const utcEndDateTime: Date = fromZonedTime(endDateTime, timezone);
-            if (!storedDates.some((date) => isSameUtcDay(date, utcStartDateTime))) {
-                storedDates.push(utcStartDateTime);
-            }
-            if (!storedDates.some((date) => isSameUtcDay(date, utcEndDateTime))) {
-                storedDates.push(utcEndDateTime);
-            }
-        });
+        const utcDates: Date[] = localDates.map((date) =>
+            fromZonedTime(
+                set(date, {
+                    hours: localStartTime.getHours(),
+                    minutes: localStartTime.getMinutes(),
+                }),
+                timezone
+            )
+        );
         const utcStartTime: Date = fromZonedTime(localStartTime, timezone);
         const utcEndTime: Date = fromZonedTime(localEndTime, timezone);
         const connection = await pool.getConnection();
-        console.log(storedDates);
         try {
             await connection.beginTransaction();
             await connection.query(eventSql, [
@@ -60,7 +57,7 @@ export class EventService {
                 formatInTimeZone(utcEndTime, "UTC", timeFormat),
             ]);
             await connection.query(eventDatesSql, [
-                storedDates.map((val) => [eventId, formatInTimeZone(val, "UTC", dateFormat)]),
+                utcDates.map((val) => [eventId, formatInTimeZone(val, "UTC", dateFormat)]),
             ]);
             await connection.commit();
         } catch (error: any) {
