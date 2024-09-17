@@ -2,9 +2,9 @@ import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
 import { getUserStruct, User } from "../interfaces/user";
 import { EventService } from "./eventService";
-import { generateNRandomId, isValidInput } from "../utils";
+import { generateNRandomId } from "../utils";
 import { GeneralErrorMessages } from "../errors";
-import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
+import { ConflictError, DatabaseError, NotFoundError } from "../errors/errors";
 
 export class UserService {
     static async getUsersFromEvent(eventId: number): Promise<User[]> {
@@ -17,7 +17,6 @@ export class UserService {
     static async createUser(eventId: number, name: string): Promise<number> {
         const sql = "INSERT INTO users (user_id, event_id, name) VALUES (?, ?, ?)";
         const userId: number = generateNRandomId(8);
-        if (!isValidInput(name)) throw new ValidationError("Name must be at least 3 characters long.");
         try {
             await pool.query(sql, [userId, eventId, name]);
             return userId;
