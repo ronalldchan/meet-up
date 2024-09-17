@@ -1,23 +1,22 @@
 import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
-import { Event, getSqlEventStruct } from "../interfaces/event";
-import { dateFormat, generateNRandomId, isSameUtcDay, timeFormat } from "../utils";
-import { GeneralErrorMessages } from "../errors";
+import { getSqlEventStruct } from "../interfaces/event";
+import { dateFormat, generateNRandomId, timeFormat } from "../utils";
 import { getMinutes, isAfter, set } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
+import { GetEvent, getEventSchema } from "../schemas/EventRouteSchema";
 
 export class EventService {
-    static async getEvent(eventId: number): Promise<any> {
+    static async getEvent(eventId: number): Promise<GetEvent> {
         const eventSql = "SELECT * FROM events WHERE event_id = ?";
         const [eventRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventSql, [eventId]);
         if (eventRows.length <= 0) throw new NotFoundError(`No event of ID ${eventId} was found.`);
         const eventDatesSql = "SELECT * FROM event_dates WHERE event_id = ?";
         const [eventDatesRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventDatesSql, [eventId]);
         if (eventDatesRows.length <= 0) throw new NotFoundError(`No event dates found.`);
-        let dates: Date[] = eventDatesRows.map((data) => new Date(data.event_date));
-        console.log(eventDatesRows);
-        return { ...getSqlEventStruct(eventRows[0]), dates: dates };
+        let dates: Date[] = eventDatesRows.map((data) => data.event_date);
+        return getEventSchema.parse({ ...getSqlEventStruct(eventRows[0]), dates: dates });
     }
 
     static async createEvent(
@@ -35,7 +34,9 @@ export class EventService {
             getMinutes(localStartTime) % 15 != 0 ||
             getMinutes(localEndTime) % 15 != 0
         )
-            throw new ValidationError(GeneralErrorMessages.INVALID_DATETIME);
+            throw new ValidationError(
+                "End time should be after start time. Time should be in intervals of 15 minutes."
+            );
         const utcDates: Date[] = localDates.map((date) =>
             fromZonedTime(
                 set(date, {

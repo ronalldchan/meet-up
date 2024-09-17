@@ -8,4 +8,13 @@ export const createEventSchema = z.object({
     timezone: z.string().min(1),
 });
 
+export const getEventSchema = z.object({
+    eventId: z.number().min(1),
+    name: z.string().min(1),
+    startTime: z.string().min(5),
+    endTime: z.string().min(5),
+    dates: z.array(z.date()).min(1),
+});
+
 export type CreateEvent = z.infer<typeof createEventSchema>;
+export type GetEvent = z.infer<typeof getEventSchema>;
