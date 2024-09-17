@@ -15,8 +15,8 @@ export class EventController {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
             const body: CreateEvent = result.data;
-            const parsedDates: Date[] = body.dates.map((val) => new Date(val));
-            if (new Set(body.dates).size < body.dates.length) throw new BadRequestError("Duplicate dates detected.");
+            const parsedDates: Date[] = [...new Set(body.dates)].map((val) => new Date(val));
+            // if (new Set(body.dates).size < body.dates.length) throw new BadRequestError("Duplicate dates detected.");
             const parsedStartTime: Date = parseTime(body.startTime);
             const parsedEndTime: Date = parseTime(body.endTime);
             if (
