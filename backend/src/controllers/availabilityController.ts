@@ -65,7 +65,19 @@ export class AvailabilityController {
         const { eventId } = req.params;
         try {
             const availabilityRows: Availability[] = await AvailabilityService.getAvailability(Number(eventId));
-            return res.status(200).json({ data: availabilityRows });
+            const userAvailMap: Map<number, string[]> = new Map<number, string[]>();
+            availabilityRows.forEach((avail) => {
+                if (userAvailMap.has(avail.userId)) {
+                    userAvailMap.get(avail.userId)?.push(avail.available);
+                } else {
+                    userAvailMap.set(avail.userId, [avail.available]);
+                }
+            });
+            const availArray = Array.from(userAvailMap.entries()).map(([userId, dates]) => ({
+                userId: userId,
+                dates: dates,
+            }));
+            return res.status(200).json({ data: availArray });
         } catch (error: any) {
             handleErrorResponse(error, res);
         }

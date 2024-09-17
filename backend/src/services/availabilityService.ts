@@ -25,8 +25,6 @@ export class AvailabilityService {
         }
         const eventStartTime: Date = fromZonedTime(parseTime(event.startTime), "utc");
         const eventEndTime: Date = fromZonedTime(parseTime(event.endTime), "utc");
-        console.log("here");
-        console.log(event);
         const eventStartDates: Date[] = event.dates.map((date) =>
             fromZonedTime(
                 set(date, { hours: eventStartTime.getUTCHours(), minutes: eventStartTime.getUTCMinutes() }),
@@ -51,37 +49,37 @@ export class AvailabilityService {
             }
             return false;
         });
-        console.log(allWithinRange);
         if (!allWithinRange) {
             throw new BadRequestError("Datetimes are not within event range.");
         }
         const parsedUtcAvailability: string[] = utcAvailability.map((date) =>
             formatInTimeZone(date, "UTC", datetimeFormat)
         );
+        console.log(parsedUtcAvailability);
         const sql = "INSERT IGNORE INTO availability (user_id, available) VALUES ?";
         const values = parsedUtcAvailability.map((a) => [userId, a]);
+        console.log(values);
         await pool.query(sql, [values]);
     }
 
     static async removeAvailability(eventId: number, userId: number, localAvailability: Date[], timezone: string) {
-        // const event: Event = await EventService.getEvent(eventId);
-        // const user: User = await UserService.getUser(userId);
-        // if (user.eventId != eventId) throw new NotFoundError("User ID does not belong to event.");
-        // const utcAvailability: Date[] = localAvailability.map((date) => fromZonedTime(date, timezone));
-        // if (utcAvailability.some((date) => date.getUTCMinutes() % 15 != 0)) {
-        //     throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
-        // }
+        const event: Event = await EventService.getEvent(eventId);
+        const user: User = await UserService.getUser(userId);
+        if (user.eventId != eventId) throw new NotFoundError("User ID does not belong to event.");
+        const utcAvailability: Date[] = localAvailability.map((date) => fromZonedTime(date, timezone));
+        if (utcAvailability.some((date) => date.getUTCMinutes() % 15 != 0)) {
+            throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
+        }
         // const eventStart = fromZonedTime(parseDateTime(event.startDate + " " + event.startTime), "utc");
         // const eventEnd = fromZonedTime(parseDateTime(event.endDate + " " + event.endTime), "utc");
         // if (utcAvailability.some((date) => !isWithinEventRange(date, eventStart, eventEnd))) {
         //     throw new BadRequestError("Datetimes are not within event range.");
         // }
-        // const parsedUtcAvailability: string[] = utcAvailability.map((date) =>
-        //     formatInTimeZone(date, "UTC", datetimeFormat)
-        // );
-        // console.log(parsedUtcAvailability);
-        // const sql = "DELETE FROM availability WHERE user_id = ? and available IN (?)";
-        // await pool.query(sql, [userId, parsedUtcAvailability]);
+        const parsedUtcAvailability: string[] = utcAvailability.map((date) =>
+            formatInTimeZone(date, "UTC", datetimeFormat)
+        );
+        const sql = "DELETE FROM availability WHERE user_id = ? and available IN (?)";
+        await pool.query(sql, [userId, parsedUtcAvailability]);
     }
 
     static async getAvailability(eventId: number): Promise<Availability[]> {
