@@ -1,4 +1,4 @@
-import { isAfter, isBefore, isValid, parse } from "date-fns";
+import { isAfter, isBefore, isValid, parse, set } from "date-fns";
 import { fromZonedTime } from "date-fns-tz";
 
 export const dateFormat: string = "yyyy-MM-dd";
@@ -16,16 +16,12 @@ export function generateNRandomId(n: number) {
     return Math.floor(min + Math.random() * (max - min + 1));
 }
 
-export function parseDate(date: string): Date {
-    return parse(date, dateFormat, new Date());
-}
-
 export function parseTime(time: string): Date {
-    return parse(time, timeFormat, new Date());
+    return parse(time, timeFormat, new Date().setSeconds(0, 0));
 }
 
 export function parseDateTime(datetime: string): Date {
-    return parse(datetime, datetimeFormat, new Date());
+    return parse(datetime, datetimeFormat, new Date().setSeconds(0, 0));
 }
 
 export function parseUtcDateTime(date: string, time: string, timezone: string): Date {
@@ -40,20 +36,10 @@ export function isValidTimezone(timezone: string): boolean {
     return isValid(fromZonedTime(new Date(), timezone));
 }
 
-export function isWithinEventRange(checkDate: Date, eventStart: Date, eventEnd: Date): boolean {
-    if (isBefore(checkDate, eventStart)) return false;
-    if (isAfter(checkDate, eventEnd)) return false;
-
-    const checkTime = { hours: checkDate.getUTCHours(), minutes: checkDate.getUTCMinutes() };
-    const startTime = { hours: eventStart.getUTCHours(), minutes: eventStart.getUTCMinutes() };
-    const endTime = { hours: eventEnd.getUTCHours(), minutes: eventEnd.getUTCMinutes() };
-
-    if (
-        checkTime.hours < startTime.hours ||
-        (checkTime.hours == startTime.hours && checkTime.minutes < startTime.minutes)
-    )
-        return false;
-    if (endTime.hours < checkTime.hours || (endTime.hours == checkTime.hours && endTime.minutes <= checkTime.minutes))
-        return false;
-    return true;
+export function isSameUtcDay(d1: Date, d2: Date): boolean {
+    return (
+        d1.getUTCFullYear() == d2.getUTCFullYear() &&
+        d1.getUTCMonth() == d2.getUTCMonth() &&
+        d1.getUTCDate() == d2.getUTCDate()
+    );
 }
