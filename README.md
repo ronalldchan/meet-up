@@ -35,6 +35,7 @@ Main goal of this project is to further develop full-stack development skills
 ### Mistakes
 
 1. Constant refactoring backend API after learning proper SOLID technique for API development (Controllers and Services functionality)
+2. No proper research into timezone management for event scheduling, leading to major refactoring of backend
 
 ### Enjoyed
 

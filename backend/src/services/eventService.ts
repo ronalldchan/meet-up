@@ -1,48 +1,68 @@
 import { FieldPacket, RowDataPacket } from "mysql2";
 import pool from "../db";
-import { Event, getSqlEventStruct } from "../interfaces/event";
-import { dateFormat, generateNRandomId, isValidInput, timeFormat } from "../utils";
-import { GeneralErrorMessages } from "../errors";
-import { getMinutes, isAfter } from "date-fns";
+import { getSqlEventStruct } from "../interfaces/event";
+import { dateFormat, generateNRandomId, timeFormat } from "../utils";
+import { getMinutes, isAfter, set } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
+import { GetEvent, getEventSchema } from "../schemas/EventRouteSchema";
 
 export class EventService {
-    static async getEvent(eventId: number): Promise<Event> {
-        const sql = "SELECT * FROM events WHERE event_id = ?";
-        const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
-        if (rows.length <= 0) throw new NotFoundError(`No event of ID ${eventId} was found.`);
-        return getSqlEventStruct(rows[0]);
+    static async getEvent(eventId: number): Promise<GetEvent> {
+        const eventSql = "SELECT * FROM events WHERE event_id = ?";
+        const [eventRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventSql, [eventId]);
+        if (eventRows.length <= 0) throw new NotFoundError(`No event of ID ${eventId} was found.`);
+        const eventDatesSql = "SELECT * FROM event_dates WHERE event_id = ?";
+        const [eventDatesRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventDatesSql, [eventId]);
+        if (eventDatesRows.length <= 0) throw new NotFoundError(`No event dates found.`);
+        let dates: Date[] = eventDatesRows.map((data) => data.event_date);
+        return getEventSchema.parse({ ...getSqlEventStruct(eventRows[0]), dates: dates });
     }
 
     static async createEvent(
         name: string,
-        localStartDateTime: Date,
-        localEndDateTime: Date,
+        localDates: Date[],
+        localStartTime: Date,
+        localEndTime: Date,
         timezone: string
     ): Promise<number> {
         const eventId: number = generateNRandomId(8);
-        const sql: string =
-            "INSERT INTO events (event_id, name, start_date, end_date, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?)";
-        if (!isValidInput(name)) throw new ValidationError("Name should be at least 3 characters long");
+        const eventSql: string = "INSERT INTO events (event_id, name, start_time, end_time) VALUES (?, ?, ?, ?)";
+        const eventDatesSql: string = "INSERT INTO event_dates (event_id, event_date) VALUES ?";
         if (
-            !isAfter(localEndDateTime, localStartDateTime) ||
-            getMinutes(localStartDateTime) % 15 != 0 ||
-            getMinutes(localEndDateTime) % 15 != 0
+            !isAfter(localEndTime, localStartTime) ||
+            getMinutes(localStartTime) % 15 != 0 ||
+            getMinutes(localEndTime) % 15 != 0
         )
-            throw new ValidationError(GeneralErrorMessages.INVALID_DATETIME);
-        const utcStartDateTime: Date = fromZonedTime(localStartDateTime, timezone);
-        const utcEndDateTime: Date = fromZonedTime(localEndDateTime, timezone);
+            throw new ValidationError(
+                "End time should be after start time. Time should be in intervals of 15 minutes."
+            );
+        const utcDates: Date[] = localDates.map((date) =>
+            fromZonedTime(
+                set(date, {
+                    hours: localStartTime.getHours(),
+                    minutes: localStartTime.getMinutes(),
+                }),
+                timezone
+            )
+        );
+        const utcStartTime: Date = fromZonedTime(localStartTime, timezone);
+        const utcEndTime: Date = fromZonedTime(localEndTime, timezone);
+        const connection = await pool.getConnection();
         try {
-            await pool.query(sql, [
+            await connection.beginTransaction();
+            await connection.query(eventSql, [
                 eventId,
                 name,
-                formatInTimeZone(utcStartDateTime, "UTC", dateFormat),
-                formatInTimeZone(utcEndDateTime, "UTC", dateFormat),
-                formatInTimeZone(utcStartDateTime, "UTC", timeFormat),
-                formatInTimeZone(utcEndDateTime, "UTC", timeFormat),
+                formatInTimeZone(utcStartTime, "UTC", timeFormat),
+                formatInTimeZone(utcEndTime, "UTC", timeFormat),
             ]);
+            await connection.query(eventDatesSql, [
+                utcDates.map((val) => [eventId, formatInTimeZone(val, "UTC", dateFormat)]),
+            ]);
+            await connection.commit();
         } catch (error: any) {
+            await connection.rollback();
             switch (error.code) {
                 case "ER_DUP_ENTRY":
                     throw new ConflictError("Attempted to create event with existing ID. Please try again.");
@@ -50,6 +70,8 @@ export class EventService {
                     throw new DatabaseError("Database error occured. Please try again.");
                 }
             }
+        } finally {
+            connection.release();
         }
         return eventId;
     }
