@@ -1,4 +1,5 @@
 import {
+    Alert,
     Box,
     Button,
     Container,
@@ -7,6 +8,9 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    SelectChangeEvent,
+    Snackbar,
+    SnackbarCloseReason,
     Stack,
     TextField,
     Typography,
@@ -16,7 +20,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import React from "react";
 import "react-day-picker/style.css";
 import "../DayPicker.css";
-import { isBefore, isSameMinute, set } from "date-fns";
+import { isAfter, isBefore, isSameDay, isSameMinute, set } from "date-fns";
 import { rawTimeZones } from "@vvo/tzdb";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { CustomDayPicker } from "../components/CustomDayPicker";
@@ -26,12 +30,38 @@ function Home() {
     const [nextYear, setNextYear] = React.useState<Date>(set(today, { year: today.getFullYear() + 1 }));
 
     const timezones = rawTimeZones.map((value) => value.name).sort();
-    const [dates, setSelected] = React.useState<Date[]>([]);
+    const [dates, setDates] = React.useState<Date[]>([]);
 
     const [earliestTime, setEarliestTime] = React.useState<Date>(set(today, { hours: 9, minutes: 0 }));
     const [latestTime, setLatestTime] = React.useState<Date>(set(today, { hours: 17, minutes: 0 }));
     const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [eventName, setEventName] = React.useState<string>("");
+
+    const [showAlert, setShowAlert] = React.useState<boolean>(false);
+    const enableSubmitButton: boolean = dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3;
+
+    function handleTimezoneChange(event: SelectChangeEvent) {
+        const value: string = event.target.value as string;
+        const utcTime: Date = fromZonedTime(today, timezone);
+        const zonedTime = toZonedTime(utcTime, value);
+        setToday(zonedTime);
+        setNextYear(set(zonedTime, { year: today.getFullYear() + 1 }));
+        setDates(dates.filter((value) => isSameDay(value, zonedTime) || isAfter(value, zonedTime)));
+        setTimezone(value);
+    }
+
+    function createEvent() {
+        if (!enableSubmitButton) {
+            setShowAlert(true);
+            return;
+        }
+    }
+
+    function handleAlertClose(event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) {
+        if (reason === "clickaway") return;
+        setShowAlert(false);
+    }
+
     return (
         <Container>
             <Typography variant="h1" align="center">
@@ -39,7 +69,7 @@ function Home() {
             </Typography>
             <Grid2 container spacing={5} justifyContent={"center"}>
                 <Grid2>
-                    <CustomDayPicker dates={dates} setSelected={setSelected} today={today} nextYear={nextYear} />
+                    <CustomDayPicker dates={dates} setSelected={setDates} today={today} nextYear={nextYear} />
                 </Grid2>
                 <Grid2 display={"flex"} justifyContent={"center"} alignItems={"center"}>
                     <Box>
@@ -79,14 +109,7 @@ function Home() {
                                     labelId="timezone"
                                     label="Timezone"
                                     value={timezone}
-                                    onChange={(event) => {
-                                        const value: string = event.target.value as string;
-                                        const utcTime: Date = fromZonedTime(today, timezone);
-                                        const zonedTime = toZonedTime(utcTime, value);
-                                        setToday(zonedTime);
-                                        setNextYear(set(zonedTime, { year: today.getFullYear() + 1 }));
-                                        setTimezone(value);
-                                    }}
+                                    onChange={handleTimezoneChange}
                                 >
                                     {timezones.map((value) => (
                                         <MenuItem key={value} value={value}>
@@ -104,21 +127,31 @@ function Home() {
                                 placeholder="My New Event"
                                 color={eventName.length != 0 ? "success" : "primary"}
                             />
-                            <Button
-                                variant="contained"
-                                disabled={
-                                    !(dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3)
-                                }
-                            >
+                            <Button variant="contained" disabled={!enableSubmitButton} onClick={createEvent}>
                                 Create Event
                             </Button>
                         </Stack>
                     </Box>
                 </Grid2>
             </Grid2>
-            <Typography> {String(dates)} </Typography>
-            <Typography> {String(earliestTime)} </Typography>
-            <Typography> {String(latestTime)} </Typography>
+            <Snackbar
+                open={showAlert}
+                autoHideDuration={6000}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                onClose={handleAlertClose}
+            >
+                <Alert severity="error" variant="filled" onClose={handleAlertClose}>
+                    Failed to create event. Please try again.
+                </Alert>
+            </Snackbar>
+            <Typography variant="h5" fontWeight={"bold"}>
+                Debugging
+            </Typography>
+            <Typography> Selected Dates: {String(dates)} </Typography>
+            <Typography>Today: {String(today)}</Typography>
+            <Typography>Next Year: {String(nextYear)}</Typography>
+            <Typography> Earliest Time: {String(earliestTime)} </Typography>
+            <Typography> Latest Time: {String(latestTime)} </Typography>
         </Container>
     );
 }
