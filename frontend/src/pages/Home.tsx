@@ -20,10 +20,11 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import React from "react";
 import "react-day-picker/style.css";
 import "../DayPicker.css";
-import { isAfter, isBefore, isSameDay, isSameMinute, set } from "date-fns";
+import { formatDate, isAfter, isBefore, isSameDay, isSameMinute, set } from "date-fns";
 import { rawTimeZones } from "@vvo/tzdb";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { CustomDayPicker } from "../components/CustomDayPicker";
+import axios from "axios";
 
 function Home() {
     const [today, setToday] = React.useState<Date>(new Date());
@@ -50,10 +51,26 @@ function Home() {
         setTimezone(value);
     }
 
-    function createEvent() {
+    async function createEvent() {
         if (!enableSubmitButton) {
             setShowAlert(true);
             return;
+        }
+
+        const jsonData = {
+            name: eventName,
+            dates: dates.map((value) => formatDate(value, "yyyy-MM-dd")),
+            startTime: formatDate(earliestTime, "HH:mm"),
+            endTime: formatDate(latestTime, "HH:mm"),
+            timezone: timezone,
+        };
+
+        try {
+            console.log("sending request");
+            const response = await axios.post("http://localhost:8080/api/events", jsonData);
+            console.log("Response:", response.data);
+        } catch (error) {
+            console.error("Error sending request:", error);
         }
     }
 
@@ -148,8 +165,8 @@ function Home() {
                 Debugging
             </Typography>
             <Typography> Selected Dates: {String(dates)} </Typography>
-            <Typography>Today: {String(today)}</Typography>
-            <Typography>Next Year: {String(nextYear)}</Typography>
+            <Typography> Today: {String(today)}</Typography>
+            <Typography> Next Year: {String(nextYear)}</Typography>
             <Typography> Earliest Time: {String(earliestTime)} </Typography>
             <Typography> Latest Time: {String(latestTime)} </Typography>
         </Container>
