@@ -42,7 +42,8 @@ function Home() {
     const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [eventName, setEventName] = React.useState<string>("");
 
-    const [showAlert, setShowAlert] = React.useState<boolean>(false);
+    const [showErrorAlert, setShowErrorAlert] = React.useState<boolean>(false);
+    const [showSuccessAlert, setShowSuccessAlert] = React.useState<boolean>(false);
     const enableSubmitButton: boolean = dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3;
     const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -58,12 +59,11 @@ function Home() {
 
     async function createEvent() {
         if (!enableSubmitButton) {
-            setShowAlert(true);
+            setShowErrorAlert(true);
             return;
         }
-
         if (loading) return;
-
+        setLoading(true);
         const jsonData = {
             name: eventName,
             dates: dates.map((value) => formatDate(value, "yyyy-MM-dd")),
@@ -71,14 +71,13 @@ function Home() {
             endTime: formatDate(latestTime, "HH:mm"),
             timezone: timezone,
         };
-
         try {
-            setLoading(true);
             const response = await axios.post(eventsEndpoint, jsonData);
-            console.log("Response:", response.data);
-            navigate("/test");
+            setShowSuccessAlert(true);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            navigate(`/event/${response.data.eventId}`);
         } catch (error) {
-            setShowAlert(true);
+            setShowErrorAlert(true);
             console.error("Error sending request:", error);
         } finally {
             setLoading(false);
@@ -87,7 +86,8 @@ function Home() {
 
     function handleAlertClose(event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) {
         if (reason === "clickaway") return;
-        setShowAlert(false);
+        setShowErrorAlert(false);
+        setShowSuccessAlert(false);
     }
 
     return (
@@ -182,13 +182,23 @@ function Home() {
                 </Grid2>
             </Grid2>
             <Snackbar
-                open={showAlert}
+                open={showErrorAlert}
                 autoHideDuration={6000}
                 anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
                 onClose={handleAlertClose}
             >
                 <Alert severity="error" variant="filled" onClose={handleAlertClose}>
                     Failed to create event. Please try again.
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={showSuccessAlert}
+                autoHideDuration={6000}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                onClose={handleAlertClose}
+            >
+                <Alert severity="success" variant="filled" onClose={handleAlertClose}>
+                    Successfully created event. Redirecting you now.
                 </Alert>
             </Snackbar>
             <Typography variant="h5" fontWeight={"bold"}>

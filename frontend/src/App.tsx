@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import "./App.css";
 import Home from "./pages/Home";
 import Meeting from "./pages/Meeting";
+import { Typography } from "@mui/material";
 
 function App() {
     return (
@@ -18,10 +19,10 @@ function App() {
             </nav> */}
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/:id" element={<Meeting />} />
+                <Route path="/event/:id" element={<Meeting />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/" element={<Home />} />
-                <Route path="/" element={<Home />} />
+                <Route path="*" element={<Typography>not found</Typography>} />
             </Routes>
         </>
     );
