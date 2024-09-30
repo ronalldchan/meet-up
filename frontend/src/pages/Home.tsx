@@ -2,6 +2,7 @@ import {
     Alert,
     Box,
     Button,
+    CircularProgress,
     Container,
     FormControl,
     Grid2,
@@ -25,8 +26,11 @@ import { rawTimeZones } from "@vvo/tzdb";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { CustomDayPicker } from "../components/CustomDayPicker";
 import axios from "axios";
+import { eventsEndpoint } from "../apiEndpoints";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+    const navigate = useNavigate();
     const [today, setToday] = React.useState<Date>(new Date());
     const [nextYear, setNextYear] = React.useState<Date>(set(today, { year: today.getFullYear() + 1 }));
 
@@ -40,6 +44,7 @@ function Home() {
 
     const [showAlert, setShowAlert] = React.useState<boolean>(false);
     const enableSubmitButton: boolean = dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3;
+    const [loading, setLoading] = React.useState<boolean>(false);
 
     function handleTimezoneChange(event: SelectChangeEvent) {
         const value: string = event.target.value as string;
@@ -57,6 +62,8 @@ function Home() {
             return;
         }
 
+        if (loading) return;
+
         const jsonData = {
             name: eventName,
             dates: dates.map((value) => formatDate(value, "yyyy-MM-dd")),
@@ -66,11 +73,15 @@ function Home() {
         };
 
         try {
-            console.log("sending request");
-            const response = await axios.post("http://localhost:8080/api/events", jsonData);
+            setLoading(true);
+            const response = await axios.post(eventsEndpoint, jsonData);
             console.log("Response:", response.data);
+            navigate("/test");
         } catch (error) {
+            setShowAlert(true);
             console.error("Error sending request:", error);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -144,9 +155,28 @@ function Home() {
                                 placeholder="My New Event"
                                 color={eventName.length != 0 ? "success" : "primary"}
                             />
-                            <Button variant="contained" disabled={!enableSubmitButton} onClick={createEvent}>
-                                Create Event
-                            </Button>
+                            <Box sx={{ position: "relative" }}>
+                                <Button
+                                    variant="contained"
+                                    disabled={!enableSubmitButton || loading}
+                                    onClick={createEvent}
+                                    fullWidth
+                                >
+                                    Create Event
+                                </Button>
+                                {loading && (
+                                    <CircularProgress
+                                        size={24}
+                                        sx={{
+                                            position: "absolute",
+                                            top: "50%",
+                                            left: "50%",
+                                            marginTop: "-12px",
+                                            marginLeft: "-12px",
+                                        }}
+                                    />
+                                )}
+                            </Box>
                         </Stack>
                     </Box>
                 </Grid2>
