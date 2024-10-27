@@ -3,6 +3,7 @@ import "./App.css";
 import Home from "./pages/Home";
 import Meeting from "./pages/Meeting";
 import { Typography } from "@mui/material";
+import { EVENT, HOME, WILDCARD } from "./RoutePaths";
 
 function App() {
     return (
@@ -18,11 +19,11 @@ function App() {
                 </ul>
             </nav> */}
             <Routes>
+                <Route path={HOME} element={<Home />} />
+                <Route path={EVENT} element={<Meeting />} />
                 <Route path="/" element={<Home />} />
-                <Route path="/event/:id" element={<Meeting />} />
                 <Route path="/" element={<Home />} />
-                <Route path="/" element={<Home />} />
-                <Route path="*" element={<Typography>not found</Typography>} />
+                <Route path={WILDCARD} element={<Typography>not found</Typography>} />
             </Routes>
         </>
     );
