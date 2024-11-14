@@ -26,8 +26,8 @@ import { rawTimeZones } from "@vvo/tzdb";
 import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { CustomDayPicker } from "../components/CustomDayPicker";
 import axios from "axios";
-import { eventsEndpoint } from "../apiEndpoints";
 import { useNavigate } from "react-router-dom";
+import { eventsEndpoint } from "../ApiEndpoints";
 
 function Home() {
     const navigate = useNavigate();

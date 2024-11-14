@@ -5,3 +5,14 @@ export interface getEvent {
     name: string;
     startTime: string;
 }
+
+interface User {
+    userId: number;
+    name: string;
+}
+
+export interface getEventUsers {
+    users: User[];
+}
+
+// export interface getEventAvailability {}
