@@ -14,12 +14,12 @@ export function CustomDayPicker({ dates, setSelected, today, nextYear }: CustomD
         <Paper sx={{ padding: 3 }}>
             <DayPicker
                 mode="multiple"
-                startMonth={today}
-                endMonth={nextYear}
+                // startMonth={today}
+                // endMonth={nextYear}
                 today={today}
                 selected={dates}
                 onSelect={setSelected}
-                disabled={{ before: today }}
+                // disabled={{ before: today }}
                 showOutsideDays
                 required
                 footer={
