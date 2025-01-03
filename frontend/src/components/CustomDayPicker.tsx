@@ -5,18 +5,18 @@ import { DayPicker } from "react-day-picker";
 interface CustomDayPickerProps {
     dates: Date[];
     setSelected: (dates: Date[]) => void;
-    today: Date;
-    nextYear: Date;
+    // today: Date;
+    // nextYear: Date;
 }
 
-export function CustomDayPicker({ dates, setSelected, today, nextYear }: CustomDayPickerProps) {
+export function CustomDayPicker({ dates, setSelected }: CustomDayPickerProps) {
     return (
         <Paper sx={{ padding: 3 }}>
             <DayPicker
                 mode="multiple"
                 // startMonth={today}
                 // endMonth={nextYear}
-                today={today}
+                // today={today}
                 selected={dates}
                 onSelect={setSelected}
                 // disabled={{ before: today }}

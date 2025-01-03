@@ -97,7 +97,8 @@ function Home() {
             </Typography>
             <Grid2 container spacing={5} justifyContent={"center"}>
                 <Grid2>
-                    <CustomDayPicker dates={dates} setSelected={setDates} today={today} nextYear={nextYear} />
+                    {/* <CustomDayPicker dates={dates} setSelected={setDates} today={today} nextYear={nextYear} /> */}
+                    <CustomDayPicker dates={dates} setSelected={setDates} />
                 </Grid2>
                 <Grid2 display={"flex"} justifyContent={"center"} alignItems={"center"}>
                     <Box>
@@ -206,7 +207,7 @@ function Home() {
             </Typography>
             <Typography> Selected Dates: {String(dates)} </Typography>
             <Typography> Today: {String(today)}</Typography>
-            <Typography> Next Year: {String(nextYear)}</Typography>
+            {/* <Typography> Next Year: {String(nextYear)}</Typography> */}
             <Typography> Earliest Time: {String(earliestTime)} </Typography>
             <Typography> Latest Time: {String(latestTime)} </Typography>
         </Container>
