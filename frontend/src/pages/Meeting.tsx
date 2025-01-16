@@ -1,5 +1,5 @@
-import { Container, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import { Form, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } from "../ApiEndpoints";
@@ -44,6 +44,21 @@ function Meeting() {
             <Typography variant="h2" align="center">
                 {eventData.name}
             </Typography>
+            <Typography>Invite people to this event by sending them this link!</Typography>
+            <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
+                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
+                    <Typography variant="h5" fontWeight={"bold"}>
+                        Sign In
+                    </Typography>
+                    <TextField label="Your Name" margin="normal" />
+                    <Button variant="contained">Sign In</Button>
+                </Box>
+                <Box>
+                    <Typography variant="h5" fontWeight={"bold"}>
+                        Group Availability
+                    </Typography>
+                </Box>
+            </Box>
             <Typography>Event Dates: {eventData.dates}</Typography>
             <Typography>Event Start: {eventData.startTime}</Typography>
             <Typography>Event End: {eventData.endTime}</Typography>
