@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } from "../ApiEndpoints";
 import { Availability, getEvent, getEventUsers } from "../ApiResponses";
+import { UserSession } from "../components/UserSession";
 
 function Meeting() {
     const { id } = useParams();
@@ -14,6 +15,7 @@ function Meeting() {
     const [availabilityMap] = useState<Map<number, string[]>>(new Map<number, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [userSession, setUserSession] = useState<string>("");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,18 +42,17 @@ function Meeting() {
 
     return (
         <Container>
-            {/* <Typography variant="h2">Meeting {id}</Typography> */}
             <Typography variant="h2" align="center">
                 {eventData.name}
             </Typography>
             <Typography>Invite people to this event by sending them this link!</Typography>
             <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
-                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
-                    <Typography variant="h5" fontWeight={"bold"}>
-                        Sign In
-                    </Typography>
-                    <TextField label="Your Name" margin="normal" />
-                    <Button variant="contained">Sign In</Button>
+                <Box>
+                    {!userSession ? (
+                        <UserSession setUsername={setUserSession} />
+                    ) : (
+                        <Typography variant="h5" fontWeight={"bold"}>{`${userSession}'s Availability`}</Typography>
+                    )}
                 </Box>
                 <Box>
                     <Typography variant="h5" fontWeight={"bold"}>
