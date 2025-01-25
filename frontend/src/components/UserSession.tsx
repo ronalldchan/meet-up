@@ -10,7 +10,7 @@ export const UserSession = ({ setUsername }: UserSessionProps) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setUsername(input);
+        setUsername(input.trim());
     };
 
     return (

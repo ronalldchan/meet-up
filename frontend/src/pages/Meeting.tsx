@@ -1,5 +1,5 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
-import { Form, useParams } from "react-router-dom";
+import { Box, Container, Typography } from "@mui/material";
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } from "../ApiEndpoints";
@@ -8,14 +8,15 @@ import { UserSession } from "../components/UserSession";
 
 function Meeting() {
     const { id } = useParams();
-    const test = import.meta.env.VITE_API_URL;
-    if (!test) console.error("fail");
+    // const test = import.meta.env.VITE_API_URL; // TODO: for setting up api url for deployment
+    // if (!test) console.error("fail");
     const [eventData, setEventData] = useState<getEvent>({} as getEvent);
     const [userData, setUserData] = useState<getEventUsers>({} as getEventUsers);
     const [availabilityMap] = useState<Map<number, string[]>>(new Map<number, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [userSession, setUserSession] = useState<string>("");
+    const [eventIntervals, setEventIntervals] = useState<Date[][]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,6 +29,21 @@ function Meeting() {
                 availabilityResponse.data.availabilities.forEach((value: Availability) => {
                     availabilityMap.set(value.userId, value.dates);
                 });
+                const [startHours, startMinutes] = eventResponse.data.startTime.split(":").map(Number);
+                const [endHours, endMinutes] = eventResponse.data.endTime.split(":").map(Number);
+                for (const dateString of eventResponse.data.dates) {
+                    const result: Date[] = [];
+                    const startDateTime: Date = new Date(dateString);
+                    startDateTime.setHours(startHours, startMinutes);
+                    const endDateTime: Date = new Date(dateString);
+                    endDateTime.setHours(endHours, endMinutes);
+                    const curr: Date = new Date(startDateTime);
+                    while (curr < endDateTime) {
+                        result.push(new Date(curr));
+                        curr.setMinutes(curr.getMinutes() + 15);
+                    }
+                    setEventIntervals((prev) => [...prev, result]);
+                }
             } catch (error) {
                 setError((error as Error).message);
             } finally {
@@ -73,6 +89,13 @@ function Meeting() {
                         }`}</Typography>
                     );
                 })}
+            </>
+
+            <>
+                {eventIntervals.map(
+                    (val) => val.map((val2) => <Typography key={val2.toISOString()}>{val2.toString()}</Typography>)
+                    // <Typography>My Range</Typography>
+                )}
             </>
         </Container>
     );
