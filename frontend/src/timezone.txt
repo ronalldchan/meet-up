@@ -1,0 +1,21 @@
+-11:00 | Samoa Stndard Time | America Samoa, Midway Islands
+-10:00 | Hawaiin Standard Time | Hawaii
+-09:00 | Alaska Standard Time | Alaska
+-08:00 | Pacific Standard Time | Los Angeles, Seattle, Vancouver
+-07:00 | Mountain Standard Time | Alberta, Denver, Salt Lake City
+-07:00 | Mountan Standard Time (Mexico) | Baja California del Sur, Chihuahua
+-07:00 | Mountain Standard Time (Arizona) | Mountain Standard Time (Arizona)
+-06:00 | Central Standard Time | Chicago, Dallas, Mexico City
+-06:00 | Central America | Guatemala, Managua, San Jose
+-06:00 | Central Standard Time | Saskatchewan
+-05:00 | Eastern Standard Time | Miami, Montreal, New York
+-05:00 | Eastern Standard Time (Indiana) | Indiana
+-05:00 | South America Pacific | Bogota, Lima
+-04:00 | Atlantic Standard Time | New Brunswick, Nova Scotia
+-04:00 | South America Western | Caracas, La Paz
+-04:00 | Chile Standard Time | Santiago
+-03:30 | Newfoundland Standard Time | Newfoundland, Labrador
+-03:00 | Brasilia Time | Salvador, Sao Paulo
+-03:00 | South America Eastern Standard Time | Buenos Aires, Georgetown
+-03:00 | West Greenland Time | Greenland
+-01:00 | Azores Time | Ponta Delgada

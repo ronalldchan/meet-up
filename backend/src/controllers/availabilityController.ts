@@ -77,7 +77,7 @@ export class AvailabilityController {
                 userId: userId,
                 dates: dates,
             }));
-            return res.status(200).json({ data: availArray });
+            return res.status(200).json({ availabilities: availArray });
         } catch (error: any) {
             handleErrorResponse(error, res);
         }
