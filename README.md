@@ -1,22 +1,29 @@
 # Meet Up
 
-Meet Up is meant to help users coordinate and plan availabilities to schedule the best time to set an event.
+Meet Up is a scheduling application designed to help users coordinate and plan availabilities to find the best time to set up an event. Whether for social gatherings, meetings, or collaborative events, Meet Up simplifies the process of finding a time that works for everyone.
 
-## Motivation and Goals
+## 🎯 Motivation and Goals
 
-Main goal of this project is to further develop full-stack development skills
+The primary motivation behind the Meet Up project is to further develop and strengthen full-stack development skills by building a fully functional web application from scratch. Key goals for the project include:
 
-## Features
+- Frontend Development: Create a dynamic, interactive user interface with React and Material UI, focusing on responsive design and user experience optimization.
+- Backend Development: Gain deeper experience with server-side logic, API design, and database interactions using TypeScript and MySQL.
+- Project Architecture: Design scalable and maintainable software architecture for efficient and effective development.
+- Feature Expansion: Continuously explore and implement new features to enhance the usability and functionality of the application.
+- End-to-End Development Workflow: Gain hands-on experience in every stage of development, from initial project setup to deployment and maintenance.
 
-- Ability to create events with a name, start datetime, end datetime, and timezone.
-- Creating new user for events
-- Setting availability times for users
+## 🚀 Features
 
-## Technology Stack
+- Event Creation: Create events with a name, dates, earliest time, latest time, and timezone.
+- User Management: Create new users for events.
+- User Availability: Set availability times for users to help coordinate schedules efficiently.
 
-- JavaScript
-- Node.js
-- MySQL
+## 🛠️ Technologies Used
+
+- TypeScript: Type-safe development for both frontend and backend
+- React: Dynamic and interactive UI
+- Material UI: Modern and responsive design system
+- MySQL: Reliable and scalable database for event and user data
 
 ## Usage
 
