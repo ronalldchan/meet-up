@@ -51,4 +51,3 @@ The primary motivation behind the Meet Up project is to further develop and stre
 ### What I would do differently
 
 1. Research more information about backend develop at the beginning rather than throughout the project in order to save time on refactoring.
-

@@ -40,7 +40,7 @@ function Meeting() {
                     const curr: Date = new Date(startDateTime);
                     while (curr < endDateTime) {
                         result.push(new Date(curr));
-                        curr.setMinutes(curr.getMinutes() + 15);
+                        curr.setMinutes(curr.getMinutes() + 30);
                     }
                     setEventIntervals((prev) => [...prev, result]);
                 }
@@ -90,12 +90,17 @@ function Meeting() {
                     );
                 })}
             </>
-
+            <Typography>{eventData.dates}</Typography>
             <>
-                {eventIntervals.map(
-                    (val) => val.map((val2) => <Typography key={val2.toISOString()}>{val2.toString()}</Typography>)
-                    // <Typography>My Range</Typography>
-                )}
+                <Typography>My Range</Typography>
+                {eventIntervals.map((val) => (
+                    <>
+                        <Box>{val[0].toDateString()}</Box>
+                        {val.map((val2) => (
+                            <Typography key={val2.toISOString()}>{val2.toISOString()}</Typography>
+                        ))}
+                    </>
+                ))}
             </>
         </Container>
     );

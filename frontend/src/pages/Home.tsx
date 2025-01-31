@@ -4,12 +4,12 @@ import {
     Button,
     CircularProgress,
     Container,
-    FormControl,
+    // FormControl,
     Grid2,
-    InputLabel,
-    MenuItem,
-    Select,
-    SelectChangeEvent,
+    // InputLabel,
+    // MenuItem,
+    // Select,
+    // SelectChangeEvent,
     Snackbar,
     SnackbarCloseReason,
     Stack,
@@ -21,9 +21,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import React from "react";
 import "react-day-picker/style.css";
 import "../DayPicker.css";
-import { formatDate, isAfter, isBefore, isSameDay, isSameMinute, set } from "date-fns";
-import { rawTimeZones } from "@vvo/tzdb";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
+import { formatDate, isBefore, isSameMinute, set } from "date-fns";
+// import { rawTimeZones } from "@vvo/tzdb";
+// import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { CustomDayPicker } from "../components/CustomDayPicker";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -31,31 +31,32 @@ import { eventsEndpoint } from "../ApiEndpoints";
 
 function Home() {
     const navigate = useNavigate();
-    const [today, setToday] = React.useState<Date>(new Date());
-    const [nextYear, setNextYear] = React.useState<Date>(set(today, { year: today.getFullYear() + 1 }));
+    const [today] = React.useState<Date>(new Date());
 
-    const timezones = rawTimeZones.map((value) => value.name).sort();
+    // const timezones = rawTimeZones.map((value) => value.name).sort();
     const [dates, setDates] = React.useState<Date[]>([]);
 
     const [earliestTime, setEarliestTime] = React.useState<Date>(set(today, { hours: 9, minutes: 0 }));
     const [latestTime, setLatestTime] = React.useState<Date>(set(today, { hours: 17, minutes: 0 }));
-    const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    // const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [eventName, setEventName] = React.useState<string>("");
 
     const [showErrorAlert, setShowErrorAlert] = React.useState<boolean>(false);
     const [showSuccessAlert, setShowSuccessAlert] = React.useState<boolean>(false);
     const enableSubmitButton: boolean = dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3;
     const [loading, setLoading] = React.useState<boolean>(false);
+    const minuteStep = 30;
 
-    function handleTimezoneChange(event: SelectChangeEvent) {
-        const value: string = event.target.value as string;
-        const utcTime: Date = fromZonedTime(today, timezone);
-        const zonedTime = toZonedTime(utcTime, value);
-        setToday(zonedTime);
-        setNextYear(set(zonedTime, { year: today.getFullYear() + 1 }));
-        setDates(dates.filter((value) => isSameDay(value, zonedTime) || isAfter(value, zonedTime)));
-        setTimezone(value);
-    }
+    // TODO: Handle timezones
+    // function handleTimezoneChange(event: SelectChangeEvent) {
+    //     const value: string = event.target.value as string;
+    //     const utcTime: Date = fromZonedTime(today, timezone);
+    //     const zonedTime = toZonedTime(utcTime, value);
+    //     setToday(zonedTime);
+    //     setNextYear(set(zonedTime, { year: today.getFullYear() + 1 }));
+    //     setDates(dates.filter((value) => isSameDay(value, zonedTime) || isAfter(value, zonedTime)));
+    //     setTimezone(value);
+    // }
 
     async function createEvent() {
         if (!enableSubmitButton) {
@@ -69,7 +70,8 @@ function Home() {
             dates: dates.map((value) => formatDate(value, "yyyy-MM-dd")),
             startTime: formatDate(earliestTime, "HH:mm"),
             endTime: formatDate(latestTime, "HH:mm"),
-            timezone: timezone,
+            // timezone: timezone, // TODO: Implement proper timezone handling later
+            timezone: "UTC",
         };
         try {
             const response = await axios.post(eventsEndpoint, jsonData);
@@ -105,7 +107,7 @@ function Home() {
                         <Stack spacing={2}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <TimePicker
-                                    minutesStep={15}
+                                    minutesStep={minuteStep}
                                     label="Earliest Start Time"
                                     value={earliestTime}
                                     onChange={(date) => (date !== null ? setEarliestTime(date) : null)}
@@ -117,7 +119,7 @@ function Home() {
                                     }}
                                 />
                                 <TimePicker
-                                    minutesStep={15}
+                                    minutesStep={minuteStep}
                                     label="Latest End Time"
                                     value={latestTime}
                                     onChange={(date) => (date !== null ? setLatestTime(date) : null)}
@@ -132,21 +134,23 @@ function Home() {
                                     }
                                 />
                             </LocalizationProvider>
-                            <FormControl fullWidth>
-                                <InputLabel id="timezone">Timezone</InputLabel>
-                                <Select
-                                    labelId="timezone"
-                                    label="Timezone"
-                                    value={timezone}
-                                    onChange={handleTimezoneChange}
-                                >
-                                    {timezones.map((value) => (
-                                        <MenuItem key={value} value={value}>
-                                            {value}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                            {/* {
+                                <FormControl fullWidth>
+                                    <InputLabel id="timezone">Timezone</InputLabel>
+                                    <Select
+                                        labelId="timezone"
+                                        label="Timezone"
+                                        value={timezone}
+                                        onChange={handleTimezoneChange}
+                                    >
+                                        {timezones.map((value) => (
+                                            <MenuItem key={value} value={value}>
+                                                {value}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            } */}
                             <TextField
                                 label="Event Name"
                                 fullWidth
