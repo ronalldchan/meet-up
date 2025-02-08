@@ -2,7 +2,7 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import React from "react";
 
 type UserSessionProps = {
-    setUsername: React.Dispatch<React.SetStateAction<string>>;
+    setUsername: (username: string) => void;
 };
 
 export const UserSession = ({ setUsername }: UserSessionProps) => {

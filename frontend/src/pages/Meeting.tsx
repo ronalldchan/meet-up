@@ -6,7 +6,7 @@ import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } 
 import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
 
-function Meeting() {
+export const Meeting = () => {
     const { id } = useParams();
     // const test = import.meta.env.VITE_API_URL; // TODO: for setting up api url for deployment
     // if (!test) console.error("fail");
@@ -15,7 +15,8 @@ function Meeting() {
     const [availabilityMap] = useState<Map<number, string[]>>(new Map<number, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-    const [userSession, setUserSession] = useState<string>("");
+    const [userSession, setUserSession] = useState<number>(0);
+    const [username, setUsername] = useState<string>("");
     const [eventIntervals, setEventIntervals] = useState<Date[][]>([]);
 
     useEffect(() => {
@@ -56,6 +57,30 @@ function Meeting() {
     if (loading) return <>Loading</>;
     if (error) return <>{error}</>;
 
+    const userSessionSetup = (username: string) => {
+        /* 
+        check if user name exists
+        if not then POST request to create user for the event
+
+        finally set react state user to the userid
+        */
+        for (const user of userData.users) {
+            if (user.name.toLowerCase() == username) {
+                setUserSession(user.userId);
+                setUsername(user.name);
+                return;
+            }
+        }
+        try {
+            // send api request to create user
+            // receive the userid created and
+            setUserSession(1);
+            setUsername(username);
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "An unknown error occured");
+        }
+    };
+
     return (
         <Container>
             <Typography variant="h2" align="center">
@@ -65,9 +90,9 @@ function Meeting() {
             <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
                 <Box>
                     {!userSession ? (
-                        <UserSession setUsername={setUserSession} />
+                        <UserSession setUsername={userSessionSetup} /> //TODO: have api request to get value
                     ) : (
-                        <Typography variant="h5" fontWeight={"bold"}>{`${userSession}'s Availability`}</Typography>
+                        <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
                     )}
                 </Box>
                 <Box>
@@ -80,6 +105,7 @@ function Meeting() {
             <Typography>Event Start: {eventData.startTime}</Typography>
             <Typography>Event End: {eventData.endTime}</Typography>
             <br />
+            <Typography variant="h3">Debug</Typography>
             <Typography>Users:</Typography>
             <>
                 {userData.users.map((data) => {
@@ -90,6 +116,8 @@ function Meeting() {
                     );
                 })}
             </>
+            <Typography>{username}</Typography>
+            <Typography>{userSession}</Typography>
             <Typography>{eventData.dates}</Typography>
             <>
                 <Typography>My Range</Typography>
@@ -104,6 +132,6 @@ function Meeting() {
             </>
         </Container>
     );
-}
+};
 
 export default Meeting;
