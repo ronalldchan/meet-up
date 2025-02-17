@@ -11,4 +11,16 @@ const pool: Pool = mysql.createPool({
     timezone: "Z",
 });
 
+const checkDbConnection = async () => {
+    try {
+        const connection = await pool.getConnection();
+        console.log("Connected to MySQL pool.");
+        connection.release();
+    } catch (err) {
+        console.error("Database connection failed:", err);
+        throw new Error("Failed to connect to the database.");
+    }
+};
+checkDbConnection();
+
 export default pool;
