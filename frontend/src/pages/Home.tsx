@@ -58,7 +58,8 @@ function Home() {
     //     setTimezone(value);
     // }
 
-    async function createEvent() {
+    async function createEvent(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
         if (!enableSubmitButton) {
             setShowErrorAlert(true);
             return;
@@ -103,87 +104,89 @@ function Home() {
                     <CustomDayPicker dates={dates} setSelected={setDates} />
                 </Grid2>
                 <Grid2 display={"flex"} justifyContent={"center"} alignItems={"center"}>
-                    <Box>
-                        <Stack spacing={2}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <TimePicker
-                                    minutesStep={minuteStep}
-                                    label="Earliest Start Time"
-                                    value={earliestTime}
-                                    onChange={(date) => (date !== null ? setEarliestTime(date) : null)}
-                                    skipDisabled={true}
-                                    slotProps={{
-                                        field: {
-                                            readOnly: true,
-                                        },
-                                    }}
-                                />
-                                <TimePicker
-                                    minutesStep={minuteStep}
-                                    label="Latest End Time"
-                                    value={latestTime}
-                                    onChange={(date) => (date !== null ? setLatestTime(date) : null)}
-                                    skipDisabled={true}
-                                    slotProps={{
-                                        field: {
-                                            readOnly: true,
-                                        },
-                                    }}
-                                    shouldDisableTime={(value) =>
-                                        isBefore(value, earliestTime) || isSameMinute(value, earliestTime)
-                                    }
-                                />
-                            </LocalizationProvider>
-                            {/* {
-                                <FormControl fullWidth>
-                                    <InputLabel id="timezone">Timezone</InputLabel>
-                                    <Select
-                                        labelId="timezone"
-                                        label="Timezone"
-                                        value={timezone}
-                                        onChange={handleTimezoneChange}
-                                    >
-                                        {timezones.map((value) => (
-                                            <MenuItem key={value} value={value}>
-                                                {value}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            } */}
-                            <TextField
-                                label="Event Name"
-                                fullWidth
-                                value={eventName}
-                                onChange={(event) => setEventName(event.target.value)}
-                                error={eventName.length < 3}
-                                placeholder="My New Event"
-                                color={eventName.length != 0 ? "success" : "primary"}
-                            />
-                            <Box sx={{ position: "relative" }}>
-                                <Button
-                                    variant="contained"
-                                    disabled={!enableSubmitButton || loading}
-                                    onClick={createEvent}
-                                    fullWidth
-                                >
-                                    Create Event
-                                </Button>
-                                {loading && (
-                                    <CircularProgress
-                                        size={24}
-                                        sx={{
-                                            position: "absolute",
-                                            top: "50%",
-                                            left: "50%",
-                                            marginTop: "-12px",
-                                            marginLeft: "-12px",
+                    <form onSubmit={createEvent}>
+                        <Box>
+                            <Stack spacing={2}>
+                                <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                    <TimePicker
+                                        minutesStep={minuteStep}
+                                        label="Earliest Start Time"
+                                        value={earliestTime}
+                                        onChange={(date) => (date !== null ? setEarliestTime(date) : null)}
+                                        skipDisabled={true}
+                                        slotProps={{
+                                            field: {
+                                                readOnly: true,
+                                            },
                                         }}
                                     />
-                                )}
-                            </Box>
-                        </Stack>
-                    </Box>
+                                    <TimePicker
+                                        minutesStep={minuteStep}
+                                        label="Latest End Time"
+                                        value={latestTime}
+                                        onChange={(date) => (date !== null ? setLatestTime(date) : null)}
+                                        skipDisabled={true}
+                                        slotProps={{
+                                            field: {
+                                                readOnly: true,
+                                            },
+                                        }}
+                                        // shouldDisableTime={(value) =>
+                                        //     isBefore(value, earliestTime) || isSameMinute(value, earliestTime)
+                                        // }
+                                    />
+                                </LocalizationProvider>
+                                {/* {
+                                    <FormControl fullWidth>
+                                        <InputLabel id="timezone">Timezone</InputLabel>
+                                        <Select
+                                            labelId="timezone"
+                                            label="Timezone"
+                                            value={timezone}
+                                            onChange={handleTimezoneChange}
+                                        >
+                                            {timezones.map((value) => (
+                                                <MenuItem key={value} value={value}>
+                                                    {value}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+                                } */}
+                                <TextField
+                                    label="Event Name"
+                                    fullWidth
+                                    value={eventName}
+                                    onChange={(event) => setEventName(event.target.value)}
+                                    error={eventName.length < 3}
+                                    placeholder="My New Event"
+                                    color={eventName.length != 0 ? "success" : "primary"}
+                                />
+                                <Box sx={{ position: "relative" }}>
+                                    <Button
+                                        variant="contained"
+                                        type="submit"
+                                        disabled={!enableSubmitButton || loading}
+                                        fullWidth
+                                    >
+                                        Create Event
+                                    </Button>
+                                    {loading && (
+                                        <CircularProgress
+                                            size={24}
+                                            sx={{
+                                                position: "absolute",
+                                                top: "50%",
+                                                left: "50%",
+                                                marginTop: "-12px",
+                                                marginLeft: "-12px",
+                                            }}
+                                        />
+                                    )}
+                                </Box>
+                            </Stack>
+                        </Box>
+                    </form>
                 </Grid2>
             </Grid2>
             <Snackbar

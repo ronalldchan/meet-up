@@ -1,7 +1,5 @@
 type AvailabilitySetterProp = {
-    availability: 
-}
+    availability: Date[];
+};
 
-export const AvailabilitySetter = () => {
-
-}
+export const AvailabilitySetter = () => {};
