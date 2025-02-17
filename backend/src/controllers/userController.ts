@@ -3,7 +3,7 @@ import { UserService } from "../services/userService";
 import { isValidIdString } from "../utils";
 import { User } from "../interfaces/user";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError } from "../errors/customErrors";
 import { CreateUser, createUserSchema } from "../schemas/UserRouteSchema";
 
 export class UserController {

@@ -4,7 +4,7 @@ import { getUserStruct, User } from "../interfaces/user";
 import { EventService } from "./eventService";
 import { generateNRandomId } from "../utils";
 import { GeneralErrorMessages } from "../errors";
-import { ConflictError, DatabaseError, NotFoundError } from "../errors/errors";
+import { ConflictError, DatabaseError, NotFoundError } from "../errors/customErrors";
 
 export class UserService {
     static async getUsersFromEvent(eventId: number): Promise<User[]> {

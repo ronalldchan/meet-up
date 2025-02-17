@@ -3,7 +3,7 @@ import { EventService } from "../services/eventService";
 import { Event } from "../interfaces/event";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
 import { isValidTimezone, parseTime } from "../utils";
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError } from "../errors/customErrors";
 import { isValid } from "date-fns";
 import { CreateEvent, createEventSchema } from "../schemas/EventRouteSchema";
 

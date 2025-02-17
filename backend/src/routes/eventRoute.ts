@@ -3,7 +3,7 @@ import { EventController } from "../controllers/eventController";
 import { UserController } from "../controllers/userController";
 import { AvailabilityController } from "../controllers/availabilityController";
 import { isValidIdString } from "../utils";
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError } from "../errors/customErrors";
 
 const router = express.Router();
 

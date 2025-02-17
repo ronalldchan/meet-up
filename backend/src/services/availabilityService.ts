@@ -2,7 +2,7 @@ import pool from "../db";
 import { UserService } from "./userService";
 import { EventService } from "./eventService";
 import { User } from "../interfaces/user";
-import { BadRequestError, NotFoundError } from "../errors/errors";
+import { BadRequestError, NotFoundError } from "../errors/customErrors";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
 import { Event } from "../interfaces/event";
 import { datetimeFormat, parseTime } from "../utils";

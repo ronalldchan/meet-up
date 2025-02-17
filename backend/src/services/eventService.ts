@@ -4,7 +4,7 @@ import { getSqlEventStruct } from "../interfaces/event";
 import { dateFormat, generateNRandomId, timeFormat } from "../utils";
 import { getMinutes, isAfter, set } from "date-fns";
 import { formatInTimeZone, fromZonedTime } from "date-fns-tz";
-import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/errors";
+import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "../errors/customErrors";
 import { GetEvent, getEventSchema } from "../schemas/EventRouteSchema";
 
 export class EventService {

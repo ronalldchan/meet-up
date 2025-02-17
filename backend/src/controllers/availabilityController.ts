@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { AvailabilityService } from "../services/availabilityService";
 import { parseDateTime, isValidTimezone } from "../utils";
 import { isValid } from "date-fns";
-import { BadRequestError } from "../errors/errors";
+import { BadRequestError } from "../errors/customErrors";
 import { GeneralErrorMessages, handleErrorResponse } from "../errors";
 import {
     AddAvailability,

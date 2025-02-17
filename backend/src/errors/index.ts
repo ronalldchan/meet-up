@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { dateFormat, timeFormat } from "../utils";
-import { BadRequestError, ConflictError, DatabaseError, NotFoundError, ValidationError } from "./errors";
+import { BadRequestError, ConflictError, DatabaseError, NotFoundError, ValidationError } from "./customErrors";
 
 export function handleErrorResponse(error: Error, res: Response) {
     switch (true) {
