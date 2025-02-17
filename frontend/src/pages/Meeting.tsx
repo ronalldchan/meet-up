@@ -57,13 +57,14 @@ export const Meeting = () => {
     if (loading) return <>Loading</>;
     if (error) return <>{error}</>;
 
-    const userSessionSetup = (username: string) => {
+    const userSessionSetup = async (username: string) => {
         /* 
         check if user name exists
         if not then POST request to create user for the event
 
         finally set react state user to the userid
         */
+        if (!username) return;
         for (const user of userData.users) {
             if (user.name.toLowerCase() == username) {
                 setUserSession(user.userId);
@@ -72,9 +73,8 @@ export const Meeting = () => {
             }
         }
         try {
-            // send api request to create user
-            // receive the userid created and
-            setUserSession(1);
+            const response = await axios.post(eventsEndpointUsers(eventData.eventId.toString()), { name: username });
+            setUserSession(response.data.userId);
             setUsername(username);
         } catch (error) {
             setError(error instanceof Error ? error.message : "An unknown error occured");
