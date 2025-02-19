@@ -5,6 +5,7 @@ import axios from "axios";
 import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } from "../ApiEndpoints";
 import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
+import { AvailabilitySetter } from "../components/AvailabilitySetter";
 
 export const Meeting = () => {
     const { id } = useParams();
@@ -58,12 +59,6 @@ export const Meeting = () => {
     if (error) return <>{error}</>;
 
     const userSessionSetup = async (username: string) => {
-        /* 
-        check if user name exists
-        if not then POST request to create user for the event
-
-        finally set react state user to the userid
-        */
         if (!username) return;
         for (const user of userData.users) {
             if (user.name.toLowerCase() == username) {
@@ -88,19 +83,33 @@ export const Meeting = () => {
             </Typography>
             <Typography>Invite people to this event by sending them this link!</Typography>
             <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
-                <Box>
+                <Box maxWidth={"100%"}>
                     {!userSession ? (
                         <UserSession setUsername={userSessionSetup} /> //TODO: have api request to get value
                     ) : (
-                        <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
+                        <>
+                            <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
+                            <AvailabilitySetter
+                                eventId={eventData.eventId}
+                                userId={userSession}
+                                eventIntervals={eventIntervals}
+                                availability={[]}
+                            />
+                        </>
                     )}
                 </Box>
-                <Box>
-                    <Typography variant="h5" fontWeight={"bold"}>
-                        Group Availability
-                    </Typography>
-                </Box>
             </Box>
+            <Box>
+                <Typography variant="h5" fontWeight={"bold"}>
+                    Group Availability
+                </Typography>
+                <Typography>
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis esse sunt inventore tempore sed
+                    libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur similique
+                    eum neque deleniti quis nihil?
+                </Typography>
+            </Box>
+            <br />
             <Typography>Event Dates: {eventData.dates}</Typography>
             <Typography>Event Start: {eventData.startTime}</Typography>
             <Typography>Event End: {eventData.endTime}</Typography>
