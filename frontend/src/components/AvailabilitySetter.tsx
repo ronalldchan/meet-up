@@ -23,28 +23,43 @@ interface AvailabilitySetterProp {
 // 2. api request to get the users availability times so highlight the appropriate boxes
 // 3. setup being able to click and select the boxes to add to availability
 export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availability }: AvailabilitySetterProp) => {
+    const days: number = eventIntervals.length;
+    const times: number = eventIntervals[0].length;
+    console.log(eventIntervals);
+    console.log(times);
+
+    const generateTimeRow = () => {
+        const rows = [];
+        for (let i = 0; i < times; i++) {
+            const cells = [];
+            for (let j = 0; j < days; j++) {
+                cells.push(
+                    <TableCell key={eventIntervals[j][i].toString()} data-value={eventIntervals[j][i].toISOString()}>
+                        <Box bgcolor={"black"} />
+                    </TableCell>
+                );
+            }
+            rows.push(<TableRow>{cells}</TableRow>);
+        }
+        return rows;
+    };
+
     return (
         <Box>
             <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Day</TableCell>
-                            {eventIntervals.map((dates, index) => {
+                            {eventIntervals.map((dates) => {
                                 return (
                                     <TableCell key={dates[0].toString()} align="center">
                                         {format(dates[0], "MMM d")}
                                     </TableCell>
                                 );
                             })}
-                            {/* {dates.map((time) => (
-                                    <TableCell key={time.toString()} align="center">
-                                        {time.toISOString()}
-                                    </TableCell>
-                                ))} */}
                         </TableRow>
                     </TableHead>
-                    <TableBody></TableBody>
+                    <TableBody>{generateTimeRow()}</TableBody>
                 </Table>
             </TableContainer>
             {/* {console.log(availability)} */}

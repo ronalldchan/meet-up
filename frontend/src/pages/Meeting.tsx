@@ -85,7 +85,7 @@ export const Meeting = () => {
             <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
                 <Box maxWidth={"100%"}>
                     {!userSession ? (
-                        <UserSession setUsername={userSessionSetup} /> //TODO: have api request to get value
+                        <UserSession setUsername={userSessionSetup} />
                     ) : (
                         <>
                             <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
@@ -98,16 +98,16 @@ export const Meeting = () => {
                         </>
                     )}
                 </Box>
-            </Box>
-            <Box>
-                <Typography variant="h5" fontWeight={"bold"}>
-                    Group Availability
-                </Typography>
-                <Typography>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis esse sunt inventore tempore sed
-                    libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur similique
-                    eum neque deleniti quis nihil?
-                </Typography>
+                <Box>
+                    <Typography variant="h5" fontWeight={"bold"}>
+                        Group Availability
+                    </Typography>
+                    <Typography>
+                        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis esse sunt inventore tempore
+                        sed libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur
+                        similique eum neque deleniti quis nihil?
+                    </Typography>
+                </Box>
             </Box>
             <br />
             <Typography>Event Dates: {eventData.dates}</Typography>
