@@ -33,6 +33,7 @@ export const Meeting = () => {
                 });
                 const [startHours, startMinutes] = eventResponse.data.startTime.split(":").map(Number);
                 const [endHours, endMinutes] = eventResponse.data.endTime.split(":").map(Number);
+                const allIntervals: Date[][] = [];
                 for (const dateString of eventResponse.data.dates) {
                     const result: Date[] = [];
                     const startDateTime: Date = new Date(dateString);
@@ -44,8 +45,9 @@ export const Meeting = () => {
                         result.push(new Date(curr));
                         curr.setMinutes(curr.getMinutes() + 30);
                     }
-                    setEventIntervals((prev) => [...prev, result]);
+                    allIntervals.push(result);
                 }
+                setEventIntervals(allIntervals);
             } catch (error) {
                 setError((error as Error).message);
             } finally {

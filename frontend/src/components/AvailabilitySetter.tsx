@@ -46,9 +46,12 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                 cells.push(
                     <TableCell
                         padding="none"
+                        height={1}
                         key={eventIntervals[j][i].toString()}
                         data-value={eventIntervals[j][i].toISOString()}
-                    ></TableCell>
+                    >
+                        <Box sx={{ width: "99%", height: "100%", bgcolor: "green" }} />
+                    </TableCell>
                 );
             }
             rows.push(<TableRow sx={{ height: 32 }}>{cells}</TableRow>);
