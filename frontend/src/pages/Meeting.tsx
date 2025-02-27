@@ -98,16 +98,16 @@ export const Meeting = () => {
                         </>
                     )}
                 </Box>
-                <Box>
-                    <Typography variant="h5" fontWeight={"bold"}>
-                        Group Availability
-                    </Typography>
-                    <Typography>
-                        Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis esse sunt inventore tempore
-                        sed libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur
-                        similique eum neque deleniti quis nihil?
-                    </Typography>
-                </Box>
+            </Box>
+            <Box>
+                <Typography variant="h5" fontWeight={"bold"}>
+                    Group Availability
+                </Typography>
+                <Typography>
+                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis esse sunt inventore tempore sed
+                    libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur similique
+                    eum neque deleniti quis nihil?
+                </Typography>
             </Box>
             <br />
             <Typography>Event Dates: {eventData.dates}</Typography>

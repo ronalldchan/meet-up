@@ -18,6 +18,8 @@ interface AvailabilitySetterProp {
     availability: Date[];
 }
 
+const tableFontSize = 10;
+
 // take in event intervals and display each days's time as a stack of boxes to be clickable
 // 1. setup time table selector with all the event intervals
 // 2. api request to get the users availability times so highlight the appropriate boxes
@@ -26,20 +28,30 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
     const days: number = eventIntervals.length;
     const times: number = eventIntervals[0].length;
     console.log(eventIntervals);
-    console.log(times);
+    console.log(days);
 
-    const generateTimeRow = () => {
+    const generateTimeRows = () => {
         const rows = [];
         for (let i = 0; i < times; i++) {
             const cells = [];
+            const time = eventIntervals[0][i];
+            cells.push(
+                <TableCell sx={{ p: 1 }}>
+                    <Typography fontSize={tableFontSize}>
+                        {time.getMinutes() == 0 ? format(time, "h a") : null}
+                    </Typography>
+                </TableCell>
+            );
             for (let j = 0; j < days; j++) {
                 cells.push(
-                    <TableCell key={eventIntervals[j][i].toString()} data-value={eventIntervals[j][i].toISOString()}>
-                        <Box bgcolor={"black"} />
-                    </TableCell>
+                    <TableCell
+                        padding="none"
+                        key={eventIntervals[j][i].toString()}
+                        data-value={eventIntervals[j][i].toISOString()}
+                    ></TableCell>
                 );
             }
-            rows.push(<TableRow>{cells}</TableRow>);
+            rows.push(<TableRow sx={{ height: 32 }}>{cells}</TableRow>);
         }
         return rows;
     };
@@ -50,19 +62,21 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                 <Table>
                     <TableHead>
                         <TableRow>
+                            <TableCell />
                             {eventIntervals.map((dates) => {
                                 return (
-                                    <TableCell key={dates[0].toString()} align="center">
-                                        {format(dates[0], "MMM d")}
-                                    </TableCell>
+                                    <>
+                                        <TableCell key={dates[0].toString()} align="center">
+                                            <Typography>{format(dates[0], "MMM d")}</Typography>
+                                        </TableCell>
+                                    </>
                                 );
                             })}
                         </TableRow>
                     </TableHead>
-                    <TableBody>{generateTimeRow()}</TableBody>
+                    <TableBody>{generateTimeRows()}</TableBody>
                 </Table>
             </TableContainer>
-            {/* {console.log(availability)} */}
             <Typography>{`${eventId} ${userId}`}</Typography>
         </Box>
     );
