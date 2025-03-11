@@ -1,16 +1,4 @@
-import {
-    Alert,
-    Box,
-    Button,
-    CircularProgress,
-    Container,
-    Grid2,
-    Snackbar,
-    SnackbarCloseReason,
-    Stack,
-    TextField,
-    Typography,
-} from "@mui/material";
+import { Box, Button, CircularProgress, Container, Grid2, Stack, TextField, Typography } from "@mui/material";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import React from "react";
@@ -23,6 +11,7 @@ import { CustomDayPicker } from "../components/CustomDayPicker";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { eventsEndpoint } from "../ApiEndpoints";
+import NotificationMessage from "../components/NotificationMessage";
 
 function Home() {
     const navigate = useNavigate();
@@ -36,8 +25,9 @@ function Home() {
     // const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
     const [eventName, setEventName] = React.useState<string>("");
 
-    const [showErrorAlert, setShowErrorAlert] = React.useState<boolean>(false);
-    const [showSuccessAlert, setShowSuccessAlert] = React.useState<boolean>(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
     const enableSubmitButton: boolean = dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3;
     const [loading, setLoading] = React.useState<boolean>(false);
     const minuteStep = 30;
@@ -56,7 +46,6 @@ function Home() {
     async function createEvent(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!enableSubmitButton) {
-            setShowErrorAlert(true);
             return;
         }
         if (loading) return;
@@ -71,21 +60,15 @@ function Home() {
         };
         try {
             const response = await axios.post(eventsEndpoint, jsonData);
-            setShowSuccessAlert(true);
+            setSuccess("Successfully created event. Redirecting you now.");
             await new Promise((resolve) => setTimeout(resolve, 3000));
             navigate(`/event/${response.data.eventId}`);
         } catch (error) {
-            setShowErrorAlert(true);
+            setError("Failed to create event. Please try again.");
             console.error("Error sending request:", error);
         } finally {
             setLoading(false);
         }
-    }
-
-    function handleAlertClose(event: React.SyntheticEvent | Event, reason?: SnackbarCloseReason) {
-        if (reason === "clickaway") return;
-        setShowErrorAlert(false);
-        setShowSuccessAlert(false);
     }
 
     return (
@@ -184,26 +167,13 @@ function Home() {
                     </form>
                 </Grid2>
             </Grid2>
-            <Snackbar
-                open={showErrorAlert}
-                autoHideDuration={6000}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                onClose={handleAlertClose}
-            >
-                <Alert severity="error" variant="filled" onClose={handleAlertClose}>
-                    Failed to create event. Please try again.
-                </Alert>
-            </Snackbar>
-            <Snackbar
-                open={showSuccessAlert}
-                autoHideDuration={6000}
-                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                onClose={handleAlertClose}
-            >
-                <Alert severity="success" variant="filled" onClose={handleAlertClose}>
-                    Successfully created event. Redirecting you now.
-                </Alert>
-            </Snackbar>
+            <NotificationMessage open={!!error} message={error || ""} onClose={() => setError(null)} severity="error" />
+            <NotificationMessage
+                open={!!success}
+                message={success || ""}
+                onClose={() => setError(null)}
+                severity="success"
+            />
             <Typography variant="h5" fontWeight={"bold"}>
                 Debugging
             </Typography>

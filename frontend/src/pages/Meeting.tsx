@@ -61,18 +61,20 @@ export const Meeting = () => {
     if (error) return <>{error}</>;
 
     const userSessionSetup = async (username: string) => {
-        if (!username) return;
+        const trimmed: string = username.trim();
+        console.log(trimmed);
+        if (!trimmed || trimmed.length < 3) return;
         for (const user of userData.users) {
-            if (user.name.toLowerCase() == username) {
+            if (user.name.toLowerCase() == trimmed.toLowerCase()) {
                 setUserSession(user.userId);
                 setUsername(user.name);
                 return;
             }
         }
         try {
-            const response = await axios.post(eventsEndpointUsers(eventData.eventId.toString()), { name: username });
+            const response = await axios.post(eventsEndpointUsers(eventData.eventId.toString()), { name: trimmed });
             setUserSession(response.data.userId);
-            setUsername(username);
+            setUsername(trimmed);
         } catch (error) {
             setError(error instanceof Error ? error.message : "An unknown error occured");
         }
