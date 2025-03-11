@@ -6,8 +6,9 @@ import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } 
 import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
 import { AvailabilitySetter } from "../components/AvailabilitySetter";
+import NotificationMessage from "../components/NotificationMessage";
 
-export const Meeting = () => {
+export const Event = () => {
     const { id } = useParams();
     // const test = import.meta.env.VITE_API_URL; // TODO: for setting up api url for deployment
     // if (!test) console.error("fail");
@@ -15,6 +16,7 @@ export const Meeting = () => {
     const [userData, setUserData] = useState<getEventUsers>({} as getEventUsers);
     const [availabilityMap] = useState<Map<number, string[]>>(new Map<number, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
+    const [dataError, setDataError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [userSession, setUserSession] = useState<number>(0);
     const [username, setUsername] = useState<string>("");
@@ -49,7 +51,7 @@ export const Meeting = () => {
                 }
                 setEventIntervals(allIntervals);
             } catch (error) {
-                setError((error as Error).message);
+                setDataError((error as Error).message);
             } finally {
                 setLoading(false);
             }
@@ -58,12 +60,10 @@ export const Meeting = () => {
     }, []);
 
     if (loading) return <>Loading</>;
-    if (error) return <>{error}</>;
+    if (dataError) return <>{dataError}</>;
 
     const userSessionSetup = async (username: string) => {
-        const trimmed: string = username.trim();
-        console.log(trimmed);
-        if (!trimmed || trimmed.length < 3) return;
+        const trimmed: string = username;
         for (const user of userData.users) {
             if (user.name.toLowerCase() == trimmed.toLowerCase()) {
                 setUserSession(user.userId);
@@ -143,8 +143,14 @@ export const Meeting = () => {
                     </>
                 ))}
             </>
+            <NotificationMessage
+                open={!!error}
+                message={error || ""}
+                severity={"error"}
+                onClose={() => setError(null)}
+            />
         </Container>
     );
 };
 
-export default Meeting;
+export default Event;

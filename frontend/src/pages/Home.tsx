@@ -1,7 +1,7 @@
 import { Box, Button, Container, Grid2, Stack, TextField, Typography } from "@mui/material";
 import { LocalizationProvider, TimePicker } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import React from "react";
+import React, { useMemo } from "react";
 import "react-day-picker/style.css";
 import "../DayPicker.css";
 import { formatDate, isBefore, set } from "date-fns";
@@ -28,7 +28,11 @@ function Home() {
     const [error, setError] = React.useState<string | null>(null);
     const [success, setSuccess] = React.useState<string | null>(null);
 
-    const enableSubmitButton: boolean = dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.length >= 3;
+    const enableSubmitButton: boolean = useMemo(
+        () => dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.trim().length >= 3,
+        [dates, earliestTime, latestTime, eventName]
+    );
+
     const [loading, setLoading] = React.useState<boolean>(false);
     const minuteStep = 30;
 
