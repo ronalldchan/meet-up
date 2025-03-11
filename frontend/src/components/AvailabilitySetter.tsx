@@ -27,8 +27,6 @@ const tableFontSize = 10;
 export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availability }: AvailabilitySetterProp) => {
     const days: number = eventIntervals.length;
     const times: number = eventIntervals[0].length;
-    console.log(eventIntervals);
-    console.log(days);
 
     const generateTimeRows = () => {
         const rows = [];
@@ -68,11 +66,9 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                             <TableCell />
                             {eventIntervals.map((dates) => {
                                 return (
-                                    <>
-                                        <TableCell key={dates[0].toString()} align="center">
-                                            <Typography>{format(dates[0], "MMM d")}</Typography>
-                                        </TableCell>
-                                    </>
+                                    <TableCell key={dates[0].toString()} align="center">
+                                        <Typography>{format(dates[0], "MMM d")}</Typography>
+                                    </TableCell>
                                 );
                             })}
                         </TableRow>

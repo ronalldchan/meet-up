@@ -1,4 +1,4 @@
-import { Box, Container, Typography } from "@mui/material";
+import { Box, CircularProgress, Container, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -59,24 +59,37 @@ export const Event = () => {
         fetchData();
     }, []);
 
-    if (loading) return <>Loading</>;
-    if (dataError) return <>{dataError}</>;
+    if (loading)
+        return (
+            <Box
+                sx={{
+                    height: "100vh",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    gap: 2,
+                }}
+            >
+                <CircularProgress />
+            </Box>
+        );
+    if (dataError) return <Typography>{dataError}</Typography>;
 
     const userSessionSetup = async (username: string) => {
-        const trimmed: string = username;
         for (const user of userData.users) {
-            if (user.name.toLowerCase() == trimmed.toLowerCase()) {
+            if (user.name.toLowerCase() == username.toLowerCase()) {
                 setUserSession(user.userId);
                 setUsername(user.name);
                 return;
             }
         }
         try {
-            const response = await axios.post(eventsEndpointUsers(eventData.eventId.toString()), { name: trimmed });
+            const response = await axios.post(eventsEndpointUsers(eventData.eventId.toString()), { name: username });
             setUserSession(response.data.userId);
-            setUsername(trimmed);
+            setUsername(username);
         } catch (error) {
-            setError(error instanceof Error ? error.message : "An unknown error occured");
+            setError(error instanceof Error ? error.message : "An unknown error occured setting user session");
         }
     };
 
@@ -87,21 +100,26 @@ export const Event = () => {
             </Typography>
             <Typography>Invite people to this event by sending them this link!</Typography>
             <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
-                <Box maxWidth={"100%"}>
-                    {!userSession ? (
-                        <UserSession setUsername={userSessionSetup} />
-                    ) : (
-                        <>
-                            <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
-                            <AvailabilitySetter
-                                eventId={eventData.eventId}
-                                userId={userSession}
-                                eventIntervals={eventIntervals}
-                                availability={[]}
-                            />
-                        </>
-                    )}
-                </Box>
+                {!userSession ? (
+                    <UserSession setUsername={userSessionSetup} />
+                ) : (
+                    <Box
+                        sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                        }}
+                    >
+                        <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
+                        <AvailabilitySetter
+                            eventId={eventData.eventId}
+                            userId={userSession}
+                            eventIntervals={eventIntervals}
+                            availability={[]}
+                        />
+                    </Box>
+                )}
             </Box>
             <Box>
                 <Typography variant="h5" fontWeight={"bold"}>
