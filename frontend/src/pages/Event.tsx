@@ -103,22 +103,40 @@ export const Event = () => {
                 {!userSession ? (
                     <UserSession setUsername={userSessionSetup} />
                 ) : (
-                    <Box
-                        sx={{
-                            display: "flex",
-                            flexDirection: "column",
-                            justifyContent: "center",
-                            alignItems: "center",
-                        }}
-                    >
-                        <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
-                        <AvailabilitySetter
-                            eventId={eventData.eventId}
-                            userId={userSession}
-                            eventIntervals={eventIntervals}
-                            availability={[]}
-                        />
-                    </Box>
+                    <>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
+                            <AvailabilitySetter
+                                eventId={eventData.eventId}
+                                userId={userSession}
+                                eventIntervals={eventIntervals}
+                                availability={[]}
+                            />
+                        </Box>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
+                            <AvailabilitySetter
+                                eventId={eventData.eventId}
+                                userId={userSession}
+                                eventIntervals={eventIntervals}
+                                availability={[]}
+                            />
+                        </Box>
+                    </>
                 )}
             </Box>
             <Box>

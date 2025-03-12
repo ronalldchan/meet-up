@@ -18,7 +18,7 @@ interface AvailabilitySetterProp {
     availability: Date[];
 }
 
-const tableFontSize = 10;
+const tableFontSize = 12;
 
 // take in event intervals and display each days's time as a stack of boxes to be clickable
 // 1. setup time table selector with all the event intervals
@@ -33,13 +33,16 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
         for (let i = 0; i < times; i++) {
             const cells = [];
             const time = eventIntervals[0][i];
-            cells.push(
-                <TableCell sx={{ p: 1 }}>
-                    <Typography fontSize={tableFontSize}>
-                        {time.getMinutes() == 0 ? format(time, "h a") : null}
-                    </Typography>
-                </TableCell>
-            );
+            if (time.getMinutes() == 0) {
+                cells.push(
+                    <TableCell rowSpan={2}>
+                        <Typography fontSize={tableFontSize} sx={{ whiteSpace: "nowrap" }}>
+                            {format(time, "h a")}
+                        </Typography>
+                    </TableCell>
+                );
+            }
+
             for (let j = 0; j < days; j++) {
                 cells.push(
                     <TableCell
@@ -47,8 +50,9 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                         height={1}
                         key={eventIntervals[j][i].toString()}
                         data-value={eventIntervals[j][i].toISOString()}
+                        sx={{ border: 1, borderColor: "rgb(224,224,224)", backgroundColor: "rgb(255, 200, 200)" }}
                     >
-                        <Box sx={{ width: "99%", height: "100%", bgcolor: "green" }} />
+                        {/* <Box sx={{ width: "99%", height: "100%", bgcolor: "green" }} /> */}
                     </TableCell>
                 );
             }
@@ -59,7 +63,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
 
     return (
         <Box>
-            <TableContainer component={Paper} sx={{ overflowX: "auto" }}>
+            <TableContainer component={Paper} sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto" }}>
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -67,7 +71,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                             {eventIntervals.map((dates) => {
                                 return (
                                     <TableCell key={dates[0].toString()} align="center">
-                                        <Typography>{format(dates[0], "MMM d")}</Typography>
+                                        <Typography fontSize={tableFontSize}>{format(dates[0], "MMM d")}</Typography>
                                     </TableCell>
                                 );
                             })}
