@@ -1,5 +1,6 @@
 import {
     Box,
+    Button,
     Paper,
     Table,
     TableBody,
@@ -11,6 +12,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import React, { useEffect } from "react";
+import NotificationMessage from "./NotificationMessage";
 
 interface AvailabilitySetterProp {
     eventId: number;
@@ -33,14 +35,16 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
 
     const [selectedTimes, setSelectedTimes] = React.useState<Date[]>([]); // Track selected times
     const [isDragging, setIsDragging] = React.useState(false); // Track drag state
+    const [success, setSuccess] = React.useState<string | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
 
     useEffect(() => {
-        const handleMouseUp = () => setIsDragging(false);
+        const handlePointerUp = () => setIsDragging(false);
 
-        window.addEventListener("mouseup", handleMouseUp);
+        window.addEventListener("pointerup", handlePointerUp);
 
         return () => {
-            window.removeEventListener("mouseup", handleMouseUp);
+            window.removeEventListener("pointerup", handlePointerUp);
         };
     }, []);
 
@@ -50,12 +54,12 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
         );
     };
 
-    const handleMouseDown = (datetime: Date) => {
+    const handlePointerDown = (datetime: Date) => {
         setIsDragging(true);
         toggleSelection(datetime);
     };
 
-    const handleMouseEnter = (datetime: Date) => {
+    const handlePointerEnter = (datetime: Date) => {
         if (isDragging) {
             toggleSelection(datetime);
         }
@@ -80,8 +84,8 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                 const datetimeValue = eventIntervals[j][i];
                 cells.push(
                     <TableCell
-                        onMouseDown={() => handleMouseDown(datetimeValue)}
-                        onMouseEnter={() => handleMouseEnter(datetimeValue)}
+                        onPointerDown={() => handlePointerDown(datetimeValue)}
+                        onPointerEnter={() => handlePointerEnter(datetimeValue)}
                         padding="none"
                         height={1}
                         key={datetimeValue.toISOString()}
@@ -101,29 +105,58 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
         return rows;
     };
 
+    const handleSubmit = (e: React.FormEvent) => {
+        // do api request to update availability
+        e.preventDefault();
+        try {
+            setSuccess("updated availablity");
+        } catch (error) {
+            setError((error as Error).message || "Failed to update availability");
+        }
+    };
+
     console.log(selectedTimes);
     return (
-        <Box>
-            <TableContainer
-                component={Paper}
-                sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto", userSelect: "none" }}
-            >
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell />
-                            {eventIntervals.map((dates) => {
-                                return (
-                                    <TableCell key={dates[0].toString()} align="center">
-                                        <Typography fontSize={tableFontSize}>{format(dates[0], "MMM d")}</Typography>
-                                    </TableCell>
-                                );
-                            })}
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>{generateTimeRows()}</TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
+        <form onSubmit={handleSubmit}>
+            <Box display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={2}>
+                <TableContainer
+                    component={Paper}
+                    sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto", userSelect: "none" }}
+                >
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell />
+                                {eventIntervals.map((dates) => {
+                                    return (
+                                        <TableCell key={dates[0].toString()} align="center">
+                                            <Typography fontSize={tableFontSize}>
+                                                {format(dates[0], "MMM d")}
+                                            </Typography>
+                                        </TableCell>
+                                    );
+                                })}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>{generateTimeRows()}</TableBody>
+                    </Table>
+                </TableContainer>
+                <Button variant="contained" type="submit">
+                    Update Availability
+                </Button>
+            </Box>
+            <NotificationMessage
+                open={!!success}
+                message={success || ""}
+                severity={"success"}
+                onClose={() => setSuccess(null)}
+            />
+            <NotificationMessage
+                open={!!error}
+                message={error || ""}
+                severity={"error"}
+                onClose={() => setError(null)}
+            />
+        </form>
     );
 };
