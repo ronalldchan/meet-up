@@ -120,22 +120,6 @@ export const Event = () => {
                                 availability={[]}
                             />
                         </Box>
-                        <Box
-                            sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                                alignItems: "center",
-                            }}
-                        >
-                            <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
-                            <AvailabilitySetter
-                                eventId={eventData.eventId}
-                                userId={userSession}
-                                eventIntervals={eventIntervals}
-                                availability={[]}
-                            />
-                        </Box>
                     </>
                 )}
             </Box>
@@ -149,42 +133,44 @@ export const Event = () => {
                     eum neque deleniti quis nihil?
                 </Typography>
             </Box>
-            <br />
-            <Typography>Event Dates: {eventData.dates}</Typography>
-            <Typography>Event Start: {eventData.startTime}</Typography>
-            <Typography>Event End: {eventData.endTime}</Typography>
-            <br />
-            <Typography variant="h3">Debug</Typography>
-            <Typography>Users:</Typography>
-            <>
-                {userData.users.map((data) => {
-                    return (
-                        <Typography key={data.name}>{`${data.name} + ${
-                            availabilityMap.get(data.userId) || []
-                        }`}</Typography>
-                    );
-                })}
-            </>
-            <Typography>{username}</Typography>
-            <Typography>{userSession}</Typography>
-            <Typography>{eventData.dates}</Typography>
-            <>
-                <Typography>My Range</Typography>
-                {eventIntervals.map((val) => (
-                    <>
-                        <Box>{val[0].toDateString()}</Box>
-                        {val.map((val2) => (
-                            <Typography key={val2.toISOString()}>{val2.toISOString()}</Typography>
-                        ))}
-                    </>
-                ))}
-            </>
-            <NotificationMessage
-                open={!!error}
-                message={error || ""}
-                severity={"error"}
-                onClose={() => setError(null)}
-            />
+            {/* <Box>
+                <br />
+                <Typography>Event Dates: {eventData.dates}</Typography>
+                <Typography>Event Start: {eventData.startTime}</Typography>
+                <Typography>Event End: {eventData.endTime}</Typography>
+                <br />
+                <Typography variant="h3">Debug</Typography>
+                <Typography>Users:</Typography>
+                <>
+                    {userData.users.map((data) => {
+                        return (
+                            <Typography key={data.name}>{`${data.name} + ${
+                                availabilityMap.get(data.userId) || []
+                            }`}</Typography>
+                        );
+                    })}
+                </>
+                <Typography>{username}</Typography>
+                <Typography>{userSession}</Typography>
+                <Typography>{eventData.dates}</Typography>
+                <>
+                    <Typography>My Range</Typography>
+                    {eventIntervals.map((val) => (
+                        <>
+                            <Box>{val[0].toDateString()}</Box>
+                            {val.map((val2) => (
+                                <Typography key={val2.toISOString()}>{val2.toISOString()}</Typography>
+                            ))}
+                        </>
+                    ))}
+                </>
+                <NotificationMessage
+                    open={!!error}
+                    message={error || ""}
+                    severity={"error"}
+                    onClose={() => setError(null)}
+                />
+            </Box> */}
         </Container>
     );
 };

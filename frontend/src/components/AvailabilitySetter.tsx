@@ -10,6 +10,7 @@ import {
     Typography,
 } from "@mui/material";
 import { format } from "date-fns";
+import React, { useEffect } from "react";
 
 interface AvailabilitySetterProp {
     eventId: number;
@@ -19,6 +20,8 @@ interface AvailabilitySetterProp {
 }
 
 const tableFontSize = 12;
+const unavailableColour = "rgb(255, 200, 200)";
+const availableColour = "rgb(200, 255, 200)";
 
 // take in event intervals and display each days's time as a stack of boxes to be clickable
 // 1. setup time table selector with all the event intervals
@@ -28,6 +31,36 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
     const days: number = eventIntervals.length;
     const times: number = eventIntervals[0].length;
 
+    const [selectedTimes, setSelectedTimes] = React.useState<Date[]>([]); // Track selected times
+    const [isDragging, setIsDragging] = React.useState(false); // Track drag state
+
+    useEffect(() => {
+        const handleMouseUp = () => setIsDragging(false);
+
+        window.addEventListener("mouseup", handleMouseUp);
+
+        return () => {
+            window.removeEventListener("mouseup", handleMouseUp);
+        };
+    }, []);
+
+    const toggleSelection = (datetime: Date) => {
+        setSelectedTimes((prev) =>
+            prev.includes(datetime) ? prev.filter((t) => t !== datetime) : [...prev, datetime]
+        );
+    };
+
+    const handleMouseDown = (datetime: Date) => {
+        setIsDragging(true);
+        toggleSelection(datetime);
+    };
+
+    const handleMouseEnter = (datetime: Date) => {
+        if (isDragging) {
+            toggleSelection(datetime);
+        }
+    };
+
     const generateTimeRows = () => {
         const rows = [];
         for (let i = 0; i < times; i++) {
@@ -35,7 +68,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
             const time = eventIntervals[0][i];
             if (time.getMinutes() == 0) {
                 cells.push(
-                    <TableCell rowSpan={2}>
+                    <TableCell rowSpan={2} key={`time-${i}`}>
                         <Typography fontSize={tableFontSize} sx={{ whiteSpace: "nowrap" }}>
                             {format(time, "h a")}
                         </Typography>
@@ -44,26 +77,37 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
             }
 
             for (let j = 0; j < days; j++) {
+                const datetimeValue = eventIntervals[j][i];
                 cells.push(
                     <TableCell
+                        onMouseDown={() => handleMouseDown(datetimeValue)}
+                        onMouseEnter={() => handleMouseEnter(datetimeValue)}
                         padding="none"
                         height={1}
-                        key={eventIntervals[j][i].toString()}
-                        data-value={eventIntervals[j][i].toISOString()}
-                        sx={{ border: 1, borderColor: "rgb(224,224,224)", backgroundColor: "rgb(255, 200, 200)" }}
-                    >
-                        {/* <Box sx={{ width: "99%", height: "100%", bgcolor: "green" }} /> */}
-                    </TableCell>
+                        key={datetimeValue.toISOString()}
+                        data-value={datetimeValue.toISOString()}
+                        sx={{
+                            border: 1,
+                            borderColor: "rgb(0, 0, 0)",
+                            backgroundColor: selectedTimes.includes(datetimeValue)
+                                ? availableColour
+                                : unavailableColour,
+                        }}
+                    />
                 );
             }
-            rows.push(<TableRow sx={{ height: 32 }}>{cells}</TableRow>);
+            rows.push(<TableRow key={`row-${i}`}>{cells}</TableRow>);
         }
         return rows;
     };
 
+    console.log(selectedTimes);
     return (
         <Box>
-            <TableContainer component={Paper} sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto" }}>
+            <TableContainer
+                component={Paper}
+                sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto", userSelect: "none" }}
+            >
                 <Table>
                     <TableHead>
                         <TableRow>
@@ -80,7 +124,6 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                     <TableBody>{generateTimeRows()}</TableBody>
                 </Table>
             </TableContainer>
-            <Typography>{`${eventId} ${userId}`}</Typography>
         </Box>
     );
 };
