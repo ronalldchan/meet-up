@@ -119,10 +119,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
     return (
         <form onSubmit={handleSubmit}>
             <Box display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={2}>
-                <TableContainer
-                    component={Paper}
-                    sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto", userSelect: "none" }}
-                >
+                <TableContainer component={Paper} sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto" }}>
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -138,7 +135,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                                 })}
                             </TableRow>
                         </TableHead>
-                        <TableBody>{generateTimeRows()}</TableBody>
+                        <TableBody sx={{ userSelect: "none" }}>{generateTimeRows()}</TableBody>
                     </Table>
                 </TableContainer>
                 <Button variant="contained" type="submit">

@@ -31,7 +31,8 @@ The primary motivation behind the Meet Up project is to further develop and stre
 
 1. Set up MySQL locally by creating a new database called `meet_up`
 2. Use `/backend/tables.sql` to source the tables
-3. Use ``` node index.js ``` in backend folder to run the backend
+3. Setup .env file with basic db info, default host is localhost, user root, db_name meet_up. choose any port number you want
+4. Use ``` node index.js ``` in backend folder to run the backend
 
 ## Project Experience
 

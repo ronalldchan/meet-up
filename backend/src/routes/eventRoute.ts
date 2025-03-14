@@ -34,7 +34,8 @@ router.route("/:eventId/users").post(userController.createUser).get(userControll
 router
     .route("/:eventId/users/:userId")
     .put(availabilityController.addAvailability)
-    .delete(availabilityController.removeAvailability);
+    .delete(availabilityController.removeAvailability)
+    .patch(availabilityController.updateAvailability);
 
 router.route("/:eventId/users/availability").get(availabilityController.getAvailabilities);
 
