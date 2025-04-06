@@ -1,13 +1,13 @@
 export interface getEvent {
     endTime: string;
     dates: string[];
-    eventId: number;
+    eventId: string;
     name: string;
     startTime: string;
 }
 
 interface User {
-    userId: number;
+    userId: string;
     name: string;
 }
 
@@ -16,7 +16,7 @@ export interface getEventUsers {
 }
 
 export interface Availability {
-    userId: number;
+    userId: string;
     dates: string[];
 }
 

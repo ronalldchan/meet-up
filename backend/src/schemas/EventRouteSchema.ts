@@ -9,7 +9,7 @@ export const createEventSchema = z.object({
 });
 
 export const getEventSchema = z.object({
-    eventId: z.number().min(1),
+    eventId: z.string().min(1),
     name: z.string().min(1),
     startTime: z.string().min(5),
     endTime: z.string().min(5),

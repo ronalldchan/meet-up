@@ -13,10 +13,12 @@ import {
 import { format } from "date-fns";
 import React, { useEffect } from "react";
 import NotificationMessage from "./NotificationMessage";
+import axios from "axios";
+import { API } from "../ApiEndpoints";
 
 interface AvailabilitySetterProp {
-    eventId: number;
-    userId: number;
+    eventId: string;
+    userId: string;
     eventIntervals: Date[][];
     availability: Date[];
 }
@@ -33,16 +35,14 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
     const days: number = eventIntervals.length;
     const times: number = eventIntervals[0].length;
 
-    const [selectedTimes, setSelectedTimes] = React.useState<Date[]>([]); // Track selected times
+    const [selectedTimes, setSelectedTimes] = React.useState<Date[]>(availability); // Track selected times
     const [isDragging, setIsDragging] = React.useState(false); // Track drag state
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
 
     useEffect(() => {
         const handlePointerUp = () => setIsDragging(false);
-
         window.addEventListener("pointerup", handlePointerUp);
-
         return () => {
             window.removeEventListener("pointerup", handlePointerUp);
         };
@@ -109,6 +109,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
         // do api request to update availability
         e.preventDefault();
         try {
+            axios.patch(API.events.userAvailability(eventId, userId), { data: selectedTimes });
             setSuccess("updated availablity");
         } catch (error) {
             setError((error as Error).message || "Failed to update availability");

@@ -7,16 +7,16 @@ import { GeneralErrorMessages } from "../errors";
 import { ConflictError, DatabaseError, NotFoundError } from "../errors/customErrors";
 
 export class UserService {
-    static async getUsersFromEvent(eventId: number): Promise<User[]> {
+    static async getUsersFromEvent(eventId: string): Promise<User[]> {
         const sql = "SELECT * FROM users WHERE event_id = ?";
         await EventService.getEvent(eventId);
         const [userRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
         return userRows.map((user) => getUserStruct(user));
     }
 
-    static async createUser(eventId: number, name: string): Promise<number> {
+    static async createUser(eventId: string, name: string): Promise<string> {
         const sql = "INSERT INTO users (user_id, event_id, name) VALUES (?, ?, ?)";
-        const userId: number = generateNRandomId(8);
+        const userId: string = generateNRandomId(8);
         try {
             await pool.query(sql, [userId, eventId, name]);
             return userId;
@@ -32,7 +32,7 @@ export class UserService {
         }
     }
 
-    static async getUser(userId: number): Promise<User> {
+    static async getUser(userId: string): Promise<User> {
         const sql = "SELECT * FROM users WHERE user_id =  ?";
         const [userRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [userId]);
         if (userRows.length <= 0) throw new NotFoundError(`User ID of ${userId} does not exist`);

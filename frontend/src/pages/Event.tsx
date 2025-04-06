@@ -2,11 +2,11 @@ import { Box, CircularProgress, Container, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { eventsEndpointAvailability, eventsEndpointEvent, eventsEndpointUsers } from "../ApiEndpoints";
+
 import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
 import { AvailabilitySetter } from "../components/AvailabilitySetter";
-import NotificationMessage from "../components/NotificationMessage";
+import { API } from "../ApiEndpoints";
 
 export const Event = () => {
     const { id } = useParams();
@@ -14,22 +14,22 @@ export const Event = () => {
     // if (!test) console.error("fail");
     const [eventData, setEventData] = useState<getEvent>({} as getEvent);
     const [userData, setUserData] = useState<getEventUsers>({} as getEventUsers);
-    const [availabilityMap] = useState<Map<number, string[]>>(new Map<number, string[]>());
+    const [availabilityMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [dataError, setDataError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [userSession, setUserSession] = useState<number>(0);
+    const [userSession, setUserSession] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [eventIntervals, setEventIntervals] = useState<Date[][]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const eventResponse = await axios.get(eventsEndpointEvent(id as string));
+                const eventResponse = await axios.get(API.events.byId(id as string));
                 setEventData(eventResponse.data);
-                const userResponse = await axios.get(eventsEndpointUsers(id as string));
+                const userResponse = await axios.get(API.events.users(id as string));
                 setUserData(userResponse.data);
-                const availabilityResponse = await axios.get(eventsEndpointAvailability(id as string));
+                const availabilityResponse = await axios.get(API.events.availability(id as string));
                 availabilityResponse.data.availabilities.forEach((value: Availability) => {
                     availabilityMap.set(value.userId, value.dates);
                 });
@@ -85,7 +85,7 @@ export const Event = () => {
             }
         }
         try {
-            const response = await axios.post(eventsEndpointUsers(eventData.eventId.toString()), { name: username });
+            const response = await axios.post(API.events.users(eventData.eventId.toString()), { name: username });
             setUserSession(response.data.userId);
             setUsername(username);
         } catch (error) {

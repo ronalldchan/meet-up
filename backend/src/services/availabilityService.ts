@@ -83,8 +83,7 @@ export class AvailabilityService {
     //     await pool.query(sql, [userId, parsedUtcAvailability]);
     // }
 
-    static async updateAvailability(eventId: number, userId: number, availability: Date[], timezone: string) {
-        console.log("got here");
+    static async updateAvailability(eventId: string, userId: string, availability: Date[], timezone: string) {
         const event: GetEvent = await EventService.getEvent(eventId);
         const user: User = await UserService.getUser(userId);
         if (user.eventId != eventId) {
@@ -128,12 +127,11 @@ export class AvailabilityService {
             formatInTimeZone(date, "UTC", datetimeFormat)
         );
 
-        console.log("got to sql part");
         /**
          * mysql portion of updating the database
          */
         const connection: PoolConnection = await pool.getConnection();
-        console.log(parsedUtcAvailability);
+
         try {
             console.log("start transaction");
             await connection.beginTransaction();
@@ -161,10 +159,10 @@ export class AvailabilityService {
         console.log("done");
     }
 
-    static async getAvailability(eventId: number): Promise<Availability[]> {
+    static async getAvailability(eventId: string): Promise<Availability[]> {
         const event: Event = await EventService.getEvent(eventId);
         const sql = "SELECT A.* FROM availability a JOIN users u ON a.user_id = u.user_id WHERE u.event_id = ?";
-        const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.query(sql, [eventId]);
+        const [rows]: [RowDataPacket[], FieldPacket[]] = await pool.execute(sql, [eventId]);
         return rows.map((data) => getSqlAvailabilityStruct(data));
     }
 }

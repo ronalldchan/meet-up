@@ -8,12 +8,12 @@ import { ConflictError, DatabaseError, NotFoundError, ValidationError } from "..
 import { GetEvent, getEventSchema } from "../schemas/EventRouteSchema";
 
 export class EventService {
-    static async getEvent(eventId: number): Promise<GetEvent> {
+    static async getEvent(eventId: string): Promise<GetEvent> {
         const eventSql = "SELECT * FROM events WHERE event_id = ?";
         const [eventRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventSql, [eventId]);
         if (eventRows.length <= 0) throw new NotFoundError(`No event of ID ${eventId} was found.`);
         const eventDatesSql = "SELECT * FROM event_dates WHERE event_id = ?";
-        const [eventDatesRows]: [RowDataPacket[], FieldPacket[]] = await pool.query(eventDatesSql, [eventId]);
+        const [eventDatesRows]: [RowDataPacket[], FieldPacket[]] = await pool.execute(eventDatesSql, [eventId]);
         if (eventDatesRows.length <= 0) throw new NotFoundError(`No event dates found.`);
         let dates: Date[] = eventDatesRows.map((data) => data.event_date);
         return getEventSchema.parse({ ...getSqlEventStruct(eventRows[0]), dates: dates });
@@ -25,8 +25,8 @@ export class EventService {
         localStartTime: Date,
         localEndTime: Date,
         timezone: string
-    ): Promise<number> {
-        const eventId: number = generateNRandomId(8);
+    ): Promise<string> {
+        const eventId: string = generateNRandomId(8);
         const eventSql: string = "INSERT INTO events (event_id, name, start_time, end_time) VALUES (?, ?, ?, ?)";
         const eventDatesSql: string = "INSERT INTO event_dates (event_id, event_date) VALUES ?";
         if (
@@ -51,7 +51,7 @@ export class EventService {
         const connection = await pool.getConnection();
         try {
             await connection.beginTransaction();
-            await connection.query(eventSql, [
+            await connection.execute(eventSql, [
                 eventId,
                 name,
                 formatInTimeZone(utcStartTime, "UTC", timeFormat),

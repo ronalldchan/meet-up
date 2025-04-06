@@ -10,8 +10,9 @@ import { formatDate, isBefore, set } from "date-fns";
 import { CustomDayPicker } from "../components/CustomDayPicker";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { eventsEndpoint } from "../ApiEndpoints";
+
 import NotificationMessage from "../components/NotificationMessage";
+import { API } from "../ApiEndpoints";
 
 function Home() {
     const navigate = useNavigate();
@@ -63,7 +64,7 @@ function Home() {
             timezone: "UTC",
         };
         try {
-            const response = await axios.post(eventsEndpoint, jsonData);
+            const response = await axios.post(API.events.base, jsonData);
             setSuccess("Successfully created event. Redirecting you now.");
             await new Promise((resolve) => setTimeout(resolve, 3000));
             navigate(`/event/${response.data.eventId}`);

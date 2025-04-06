@@ -13,7 +13,7 @@ export function isValidIdString(input: string): boolean {
 export function generateNRandomId(n: number) {
     const min = Math.pow(10, n - 1);
     const max = Math.pow(10, n) - 1;
-    return Math.floor(min + Math.random() * (max - min + 1));
+    return Math.floor(min + Math.random() * (max - min + 1)).toString();
 }
 
 export function parseTime(time: string): Date {

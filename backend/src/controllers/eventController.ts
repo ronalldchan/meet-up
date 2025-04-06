@@ -42,7 +42,7 @@ export class EventController {
     async getEvent(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            const eventRow: Event = await EventService.getEvent(Number(eventId));
+            const eventRow: Event = await EventService.getEvent(eventId);
             return res.status(200).json(eventRow);
         } catch (error: any) {
             handleErrorResponse(error, res);

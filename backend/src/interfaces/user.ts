@@ -1,6 +1,6 @@
 export interface User {
-    userId: number;
-    eventId: number;
+    userId: string;
+    eventId: string;
     name: string;
 }
 

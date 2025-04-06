@@ -64,13 +64,13 @@ export class AvailabilityController {
     async getAvailabilities(req: Request, res: Response) {
         const { eventId } = req.params;
         try {
-            const availabilityRows: Availability[] = await AvailabilityService.getAvailability(Number(eventId));
-            const userAvailMap: Map<number, string[]> = new Map<number, string[]>();
+            const availabilityRows: Availability[] = await AvailabilityService.getAvailability(eventId);
+            const userAvailMap: Map<string, string[]> = new Map<string, string[]>();
             availabilityRows.forEach((avail) => {
                 if (userAvailMap.has(avail.userId)) {
-                    userAvailMap.get(avail.userId)?.push(avail.available);
+                    userAvailMap.get(avail.userId)?.push(avail.available.toISOString());
                 } else {
-                    userAvailMap.set(avail.userId, [avail.available]);
+                    userAvailMap.set(avail.userId, [avail.available.toISOString()]);
                 }
             });
             const availArray = Array.from(userAvailMap.entries()).map(([userId, dates]) => ({
@@ -95,12 +95,7 @@ export class AvailabilityController {
             if (parsedAvailability.some((date) => !isValid(date)) || !isValidTimezone(body.timezone)) {
                 throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
             }
-            await AvailabilityService.updateAvailability(
-                Number(eventId),
-                Number(userId),
-                parsedAvailability,
-                body.timezone
-            );
+            await AvailabilityService.updateAvailability(eventId, userId, parsedAvailability, body.timezone);
             return res.status(200).json({ message: "Successfully updated availabilities." });
         } catch (error: any) {
             handleErrorResponse(error, res);
