@@ -150,6 +150,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
                 <Button variant="contained" type="submit">
                     Update Availability
                 </Button>
+                <Button onClick={() => setSelectedTimes([])}>reset</Button>
             </Box>
             <NotificationMessage
                 open={!!success}

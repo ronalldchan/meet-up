@@ -79,7 +79,6 @@ export class AvailabilityService {
         } finally {
             connection.release();
         }
-        console.log("done");
     }
 
     static async getAvailability(eventId: string): Promise<Availability[]> {
