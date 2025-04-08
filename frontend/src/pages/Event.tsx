@@ -2,11 +2,12 @@ import { Box, CircularProgress, Container, Typography } from "@mui/material";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
-
 import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
 import { AvailabilitySetter } from "../components/AvailabilitySetter";
 import { API } from "../ApiEndpoints";
+import NotificationMessage from "../components/NotificationMessage";
+import { utcAsLocalTime } from "../generalHelpers";
 
 export const Event = () => {
     const { id } = useParams();
@@ -14,13 +15,13 @@ export const Event = () => {
     // if (!test) console.error("fail");
     const [eventData, setEventData] = useState<getEvent>({} as getEvent);
     const [userData, setUserData] = useState<getEventUsers>({} as getEventUsers);
-    const [availabilityMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
+    const [availabilityMap] = useState<Map<string, Date[]>>(new Map<string, Date[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [dataError, setDataError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [userSession, setUserSession] = useState<string>("");
+    const [userId, setUserId] = useState<string>("");
     const [username, setUsername] = useState<string>("");
-    const [eventIntervals, setEventIntervals] = useState<Date[][]>([]);
+    const [allTimeSlots, setAllTimeSlots] = useState<Date[][]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,25 +32,29 @@ export const Event = () => {
                 setUserData(userResponse.data);
                 const availabilityResponse = await axios.get(API.events.availability(id as string));
                 availabilityResponse.data.availabilities.forEach((value: Availability) => {
-                    availabilityMap.set(value.userId, value.dates);
+                    availabilityMap.set(
+                        value.userId,
+                        value.dates.map((value) => utcAsLocalTime(new Date(value)))
+                    );
                 });
+
                 const [startHours, startMinutes] = eventResponse.data.startTime.split(":").map(Number);
                 const [endHours, endMinutes] = eventResponse.data.endTime.split(":").map(Number);
-                const allIntervals: Date[][] = [];
-                for (const dateString of eventResponse.data.dates) {
+                const timeSlots: Date[][] = [];
+                for (const dateIso of eventResponse.data.dates) {
                     const result: Date[] = [];
-                    const startDateTime: Date = new Date(dateString);
-                    startDateTime.setHours(startHours, startMinutes);
-                    const endDateTime: Date = new Date(dateString);
-                    endDateTime.setHours(endHours, endMinutes);
-                    const curr: Date = new Date(startDateTime);
-                    while (curr < endDateTime) {
+                    const dayStart: Date = utcAsLocalTime(new Date(dateIso));
+                    dayStart.setHours(startHours, startMinutes);
+                    const dayEnd: Date = utcAsLocalTime(new Date(dateIso));
+                    dayEnd.setHours(endHours, endMinutes);
+                    const curr: Date = new Date(dayStart);
+                    while (curr < dayEnd) {
                         result.push(new Date(curr));
                         curr.setMinutes(curr.getMinutes() + 30);
                     }
-                    allIntervals.push(result);
+                    timeSlots.push(result);
                 }
-                setEventIntervals(allIntervals);
+                setAllTimeSlots(timeSlots);
             } catch (error) {
                 setDataError((error as Error).message);
             } finally {
@@ -79,14 +84,14 @@ export const Event = () => {
     const userSessionSetup = async (username: string) => {
         for (const user of userData.users) {
             if (user.name.toLowerCase() == username.toLowerCase()) {
-                setUserSession(user.userId);
+                setUserId(user.userId);
                 setUsername(user.name);
                 return;
             }
         }
         try {
             const response = await axios.post(API.events.users(eventData.eventId.toString()), { name: username });
-            setUserSession(response.data.userId);
+            setUserId(response.data.userId);
             setUsername(username);
         } catch (error) {
             setError(error instanceof Error ? error.message : "An unknown error occured setting user session");
@@ -100,7 +105,7 @@ export const Event = () => {
             </Typography>
             <Typography>Invite people to this event by sending them this link!</Typography>
             <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
-                {!userSession ? (
+                {!userId ? (
                     <UserSession setUsername={userSessionSetup} />
                 ) : (
                     <>
@@ -115,9 +120,9 @@ export const Event = () => {
                             <Typography variant="h5" fontWeight={"bold"}>{`${username}'s Availability`}</Typography>
                             <AvailabilitySetter
                                 eventId={eventData.eventId}
-                                userId={userSession}
-                                eventIntervals={eventIntervals}
-                                availability={[]}
+                                userId={userId}
+                                dayTimeSlots={allTimeSlots}
+                                availability={availabilityMap.get(userId) ?? []}
                             />
                         </Box>
                     </>
@@ -132,6 +137,21 @@ export const Event = () => {
                     libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur similique
                     eum neque deleniti quis nihil?
                 </Typography>
+            </Box>
+            <Box>
+                <Typography>Debug</Typography>
+                <>
+                    {userData.users.map((data) => {
+                        return (
+                            <>
+                                <Typography key={data.name}>{`${data.name}: ${
+                                    availabilityMap.get(data.userId) || []
+                                }`}</Typography>
+                                <br />
+                            </>
+                        );
+                    })}
+                </>
             </Box>
             {/* <Box>
                 <br />

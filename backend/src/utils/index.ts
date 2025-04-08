@@ -43,3 +43,17 @@ export function isSameUtcDay(d1: Date, d2: Date): boolean {
         d1.getUTCDate() == d2.getUTCDate()
     );
 }
+
+export function localTimeAsUTC(date: Date): Date {
+    return new Date(
+        Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            date.getHours(),
+            date.getMinutes(),
+            date.getSeconds(),
+            date.getMilliseconds()
+        )
+    );
+}

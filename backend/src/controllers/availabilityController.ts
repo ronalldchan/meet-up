@@ -91,11 +91,13 @@ export class AvailabilityController {
                 throw new BadRequestError(GeneralErrorMessages.MISSING_INVALID_PARAMETERS);
             }
             const body: AddAvailability = result.data;
-            const parsedAvailability: Date[] = body.availability.map((avail) => parseDateTime(avail));
-            if (parsedAvailability.some((date) => !isValid(date)) || !isValidTimezone(body.timezone)) {
+            let parsedAvailability: Date[];
+            try {
+                parsedAvailability = body.availability.map((avail) => new Date(avail));
+            } catch (error) {
                 throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
             }
-            await AvailabilityService.updateAvailability(eventId, userId, parsedAvailability, body.timezone);
+            await AvailabilityService.updateAvailability(eventId, userId, parsedAvailability);
             return res.status(200).json({ message: "Successfully updated availabilities." });
         } catch (error: any) {
             handleErrorResponse(error, res);

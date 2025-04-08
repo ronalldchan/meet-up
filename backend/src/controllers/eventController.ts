@@ -19,20 +19,9 @@ export class EventController {
             // if (new Set(body.dates).size < body.dates.length) throw new BadRequestError("Duplicate dates detected.");
             const parsedStartTime: Date = parseTime(body.startTime);
             const parsedEndTime: Date = parseTime(body.endTime);
-            if (
-                parsedDates.some((val) => !isValid(val)) ||
-                !isValid(parsedStartTime) ||
-                !isValid(parsedEndTime) ||
-                !isValidTimezone(body.timezone)
-            )
+            if (parsedDates.some((val) => !isValid(val)) || !isValid(parsedStartTime) || !isValid(parsedEndTime))
                 throw new BadRequestError(GeneralErrorMessages.INVALID_DATETIME);
-            const eventId = await EventService.createEvent(
-                body.name,
-                parsedDates,
-                parsedStartTime,
-                parsedEndTime,
-                body.timezone
-            );
+            const eventId = await EventService.createEvent(body.name, parsedDates, parsedStartTime, parsedEndTime);
             return res.status(201).json({ message: "Event created successfully", eventId: eventId });
         } catch (error: any) {
             handleErrorResponse(error, res);

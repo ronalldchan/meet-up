@@ -5,26 +5,21 @@ import React, { useMemo } from "react";
 import "react-day-picker/style.css";
 import "../DayPicker.css";
 import { formatDate, isBefore, set } from "date-fns";
-// import { rawTimeZones } from "@vvo/tzdb";
-// import { fromZonedTime, toZonedTime } from "date-fns-tz";
 import { CustomDayPicker } from "../components/CustomDayPicker";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 import NotificationMessage from "../components/NotificationMessage";
 import { API } from "../ApiEndpoints";
 
 function Home() {
     const navigate = useNavigate();
+    const minuteStep = 30;
     const [today] = React.useState<Date>(new Date());
 
-    // const timezones = rawTimeZones.map((value) => value.name).sort();
+    const [eventName, setEventName] = React.useState<string>("");
     const [dates, setDates] = React.useState<Date[]>([]);
-
     const [earliestTime, setEarliestTime] = React.useState<Date>(set(today, { hours: 9, minutes: 0 }));
     const [latestTime, setLatestTime] = React.useState<Date>(set(today, { hours: 17, minutes: 0 }));
-    // const [timezone, setTimezone] = React.useState<string>(Intl.DateTimeFormat().resolvedOptions().timeZone);
-    const [eventName, setEventName] = React.useState<string>("");
 
     const [error, setError] = React.useState<string | null>(null);
     const [success, setSuccess] = React.useState<string | null>(null);
@@ -33,20 +28,7 @@ function Home() {
         () => dates.length > 0 && isBefore(earliestTime, latestTime) && eventName.trim().length >= 3,
         [dates, earliestTime, latestTime, eventName]
     );
-
     const [loading, setLoading] = React.useState<boolean>(false);
-    const minuteStep = 30;
-
-    // TODO: Handle timezones
-    // function handleTimezoneChange(event: SelectChangeEvent) {
-    //     const value: string = event.target.value as string;
-    //     const utcTime: Date = fromZonedTime(today, timezone);
-    //     const zonedTime = toZonedTime(utcTime, value);
-    //     setToday(zonedTime);
-    //     setNextYear(set(zonedTime, { year: today.getFullYear() + 1 }));
-    //     setDates(dates.filter((value) => isSameDay(value, zonedTime) || isAfter(value, zonedTime)));
-    //     setTimezone(value);
-    // }
 
     async function createEvent(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -61,7 +43,7 @@ function Home() {
             startTime: formatDate(earliestTime, "HH:mm"),
             endTime: formatDate(latestTime, "HH:mm"),
             // timezone: timezone, // TODO: Implement proper timezone handling later
-            timezone: "UTC",
+            // timezone: "UTC",
         };
         try {
             const response = await axios.post(API.events.base, jsonData);
@@ -162,16 +144,15 @@ function Home() {
                 onClose={() => setError(null)}
                 severity="success"
             />
-            <Box>
+            {/* <Box>
                 <Typography variant="h5" fontWeight={"bold"}>
                     Debugging
                 </Typography>
                 <Typography> Selected Dates: {String(dates)} </Typography>
                 <Typography> Today: {String(today)}</Typography>
-                {/* <Typography> Next Year: {String(nextYear)}</Typography> */}
                 <Typography> Earliest Time: {String(earliestTime)} </Typography>
                 <Typography> Latest Time: {String(latestTime)} </Typography>
-            </Box>
+            </Box> */}
         </Container>
     );
 }

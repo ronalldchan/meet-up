@@ -1,9 +1,9 @@
 export interface getEvent {
-    endTime: string;
-    dates: string[];
+    dates: Date[];
     eventId: string;
     name: string;
     startTime: string;
+    endTime: string;
 }
 
 interface User {

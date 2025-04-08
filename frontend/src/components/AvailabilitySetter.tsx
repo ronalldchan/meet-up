@@ -15,11 +15,12 @@ import React, { useEffect } from "react";
 import NotificationMessage from "./NotificationMessage";
 import axios from "axios";
 import { API } from "../ApiEndpoints";
+import { localTimeAsUTC } from "../generalHelpers";
 
 interface AvailabilitySetterProp {
     eventId: string;
     userId: string;
-    eventIntervals: Date[][];
+    dayTimeSlots: Date[][];
     availability: Date[];
 }
 
@@ -31,9 +32,9 @@ const availableColour = "rgb(200, 255, 200)";
 // 1. setup time table selector with all the event intervals
 // 2. api request to get the users availability times so highlight the appropriate boxes
 // 3. setup being able to click and select the boxes to add to availability
-export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availability }: AvailabilitySetterProp) => {
-    const days: number = eventIntervals.length;
-    const times: number = eventIntervals[0].length;
+export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability }: AvailabilitySetterProp) => {
+    const days: number = dayTimeSlots.length;
+    const slotsInADay: number = dayTimeSlots[0].length;
 
     const [selectedTimes, setSelectedTimes] = React.useState<Date[]>(availability); // Track selected times
     const [isDragging, setIsDragging] = React.useState(false); // Track drag state
@@ -50,7 +51,9 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
 
     const toggleSelection = (datetime: Date) => {
         setSelectedTimes((prev) =>
-            prev.includes(datetime) ? prev.filter((t) => t !== datetime) : [...prev, datetime]
+            prev.some((value: Date) => value.getTime() == datetime.getTime())
+                ? prev.filter((t) => t.getTime() !== datetime.getTime())
+                : [...prev, datetime]
         );
     };
 
@@ -67,21 +70,21 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
 
     const generateTimeRows = () => {
         const rows = [];
-        for (let i = 0; i < times; i++) {
+        for (let i = 0; i < slotsInADay; i++) {
             const cells = [];
-            const time = eventIntervals[0][i];
-            if (time.getMinutes() == 0) {
+            const slot = dayTimeSlots[0][i];
+            if (slot.getMinutes() == 0) {
                 cells.push(
                     <TableCell rowSpan={2} key={`time-${i}`}>
                         <Typography fontSize={tableFontSize} sx={{ whiteSpace: "nowrap" }}>
-                            {format(time, "h a")}
+                            {format(slot, "h a")}
                         </Typography>
                     </TableCell>
                 );
             }
 
             for (let j = 0; j < days; j++) {
-                const datetimeValue = eventIntervals[j][i];
+                const datetimeValue: Date = dayTimeSlots[j][i];
                 cells.push(
                     <TableCell
                         onPointerDown={() => handlePointerDown(datetimeValue)}
@@ -93,7 +96,9 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                         sx={{
                             border: 1,
                             borderColor: "rgb(0, 0, 0)",
-                            backgroundColor: selectedTimes.includes(datetimeValue)
+                            backgroundColor: selectedTimes.some(
+                                (value: Date) => value.getTime() == datetimeValue.getTime()
+                            )
                                 ? availableColour
                                 : unavailableColour,
                         }}
@@ -105,11 +110,13 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
         return rows;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         // do api request to update availability
         e.preventDefault();
         try {
-            axios.patch(API.events.userAvailability(eventId, userId), { data: selectedTimes });
+            await axios.patch(API.events.userAvailability(eventId, userId), {
+                availability: selectedTimes.map((value) => localTimeAsUTC(value)),
+            });
             setSuccess("updated availablity");
         } catch (error) {
             setError((error as Error).message || "Failed to update availability");
@@ -117,6 +124,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
     };
 
     console.log(selectedTimes);
+
     return (
         <form onSubmit={handleSubmit}>
             <Box display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={2}>
@@ -125,7 +133,7 @@ export const AvailabilitySetter = ({ eventId, userId, eventIntervals, availabili
                         <TableHead>
                             <TableRow>
                                 <TableCell />
-                                {eventIntervals.map((dates) => {
+                                {dayTimeSlots.map((dates) => {
                                     return (
                                         <TableCell key={dates[0].toString()} align="center">
                                             <Typography fontSize={tableFontSize}>
