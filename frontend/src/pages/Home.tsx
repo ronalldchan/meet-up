@@ -48,7 +48,7 @@ function Home() {
         try {
             const response = await axios.post(API.events.base, jsonData);
             setSuccess("Successfully created event. Redirecting you now.");
-            await new Promise((resolve) => setTimeout(resolve, 3000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             navigate(`/event/${response.data.eventId}`);
         } catch (error) {
             setError("Failed to create event. Please try again.");

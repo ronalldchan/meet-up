@@ -1,8 +1,7 @@
 import { z } from "zod";
 
 export const addAvailabilitySchema = z.object({
-    availability: z.array(z.string().min(1)).nonempty(),
-    // timezone: z.string().min(1),
+    availability: z.array(z.string().min(1)),
 });
 
 export const removeAvailabilitySchema = z.object({

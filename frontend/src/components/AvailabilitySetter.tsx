@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import { format } from "date-fns";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import NotificationMessage from "./NotificationMessage";
 import axios from "axios";
 import { API } from "../ApiEndpoints";
@@ -40,9 +40,13 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
     const [isDragging, setIsDragging] = React.useState(false); // Track drag state
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
+    const [draggedCells, setDraggedCells] = useState<Set<number>>(new Set());
 
     useEffect(() => {
-        const handlePointerUp = () => setIsDragging(false);
+        const handlePointerUp = () => {
+            setIsDragging(false);
+            setDraggedCells(new Set());
+        };
         window.addEventListener("pointerup", handlePointerUp);
         return () => {
             window.removeEventListener("pointerup", handlePointerUp);
@@ -59,12 +63,22 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
 
     const handlePointerDown = (datetime: Date) => {
         setIsDragging(true);
+        const timestamp = datetime.getTime();
+        setDraggedCells(new Set([timestamp]));
         toggleSelection(datetime);
     };
 
     const handlePointerEnter = (datetime: Date) => {
         if (isDragging) {
-            toggleSelection(datetime);
+            // toggleSelection(datetime);
+            const timestamp = datetime.getTime();
+            setDraggedCells((prev) => {
+                if (prev.has(timestamp)) return prev;
+                const newSet = new Set(prev);
+                newSet.add(timestamp);
+                toggleSelection(datetime);
+                return newSet;
+            });
         }
     };
 
@@ -147,10 +161,13 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
                         <TableBody sx={{ userSelect: "none" }}>{generateTimeRows()}</TableBody>
                     </Table>
                 </TableContainer>
-                <Button variant="contained" type="submit">
-                    Update Availability
-                </Button>
-                <Button onClick={() => setSelectedTimes([])}>reset</Button>
+                <Box display={"flex"} gap={2}>
+                    <Button onClick={() => setSelectedTimes([])}>select none</Button>
+                    <Button onClick={() => setSelectedTimes(dayTimeSlots.flat())}>select all</Button>
+                    <Button variant="contained" type="submit">
+                        Update Availability
+                    </Button>
+                </Box>
             </Box>
             <NotificationMessage
                 open={!!success}
