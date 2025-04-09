@@ -1,12 +1,13 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
-import React from "react";
+import React, { useMemo } from "react";
 
 type UserSessionProps = {
-    setUsername: React.Dispatch<React.SetStateAction<string>>;
+    setUsername: (username: string) => void;
 };
 
 export const UserSession = ({ setUsername }: UserSessionProps) => {
     const [input, setInput] = React.useState<string>("");
+    const enableSubmitButton: boolean = useMemo(() => input.trim().length >= 3, [input]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +29,7 @@ export const UserSession = ({ setUsername }: UserSessionProps) => {
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
             />
-            <Button variant="contained" type="submit">
+            <Button variant="contained" type="submit" disabled={!enableSubmitButton}>
                 Sign In
             </Button>
         </Box>

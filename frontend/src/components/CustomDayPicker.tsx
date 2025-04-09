@@ -9,7 +9,7 @@ interface CustomDayPickerProps {
     // nextYear: Date;
 }
 
-export function CustomDayPicker({ dates, setSelected }: CustomDayPickerProps) {
+export const CustomDayPicker = ({ dates, setSelected }: CustomDayPickerProps) => {
     return (
         <Paper sx={{ padding: 3 }}>
             <DayPicker
@@ -44,4 +44,4 @@ export function CustomDayPicker({ dates, setSelected }: CustomDayPickerProps) {
             />
         </Paper>
     );
-}
+};

@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { dateFormat, timeFormat } from "../utils";
-import { BadRequestError, ConflictError, DatabaseError, NotFoundError, ValidationError } from "./errors";
+import { BadRequestError, ConflictError, DatabaseError, NotFoundError, ValidationError } from "./customErrors";
 
 export function handleErrorResponse(error: Error, res: Response) {
     switch (true) {
@@ -26,5 +26,5 @@ export function handleErrorResponse(error: Error, res: Response) {
 export const GeneralErrorMessages = {
     MISSING_INVALID_PARAMETERS: "Required parameters are missing or invalid.",
     UNKNOWN: "Unkown error occured. Please try again later.",
-    INVALID_DATETIME: `Invalid date, time, or timezone. Date should be '${dateFormat}', time should be '${timeFormat}', timezone should be in IANA format`,
+    INVALID_DATETIME: `Invalid date or time. Date should be '${dateFormat}', time should be '${timeFormat}', timezone should be in IANA format`,
 };

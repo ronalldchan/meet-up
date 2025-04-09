@@ -13,7 +13,7 @@ export function isValidIdString(input: string): boolean {
 export function generateNRandomId(n: number) {
     const min = Math.pow(10, n - 1);
     const max = Math.pow(10, n) - 1;
-    return Math.floor(min + Math.random() * (max - min + 1));
+    return Math.floor(min + Math.random() * (max - min + 1)).toString();
 }
 
 export function parseTime(time: string): Date {
@@ -41,5 +41,19 @@ export function isSameUtcDay(d1: Date, d2: Date): boolean {
         d1.getUTCFullYear() == d2.getUTCFullYear() &&
         d1.getUTCMonth() == d2.getUTCMonth() &&
         d1.getUTCDate() == d2.getUTCDate()
+    );
+}
+
+export function localTimeAsUTC(date: Date): Date {
+    return new Date(
+        Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate(),
+            date.getHours(),
+            date.getMinutes(),
+            date.getSeconds(),
+            date.getMilliseconds()
+        )
     );
 }

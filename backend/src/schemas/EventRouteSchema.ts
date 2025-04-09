@@ -5,11 +5,11 @@ export const createEventSchema = z.object({
     dates: z.array(z.string().min(8)).min(1),
     startTime: z.string().min(4),
     endTime: z.string().min(4),
-    timezone: z.string().min(1),
+    // timezone: z.string().min(1),
 });
 
 export const getEventSchema = z.object({
-    eventId: z.number().min(1),
+    eventId: z.string().min(1),
     name: z.string().min(1),
     startTime: z.string().min(5),
     endTime: z.string().min(5),

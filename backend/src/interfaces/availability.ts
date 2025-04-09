@@ -1,6 +1,6 @@
 export interface Availability {
-    userId: number;
-    available: string;
+    userId: string;
+    available: Date;
 }
 
 export function getSqlAvailabilityStruct(data: any): Availability {

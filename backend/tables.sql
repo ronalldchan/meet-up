@@ -1,27 +1,27 @@
 CREATE TABLE events (
-    event_id INT PRIMARY KEY,
+    event_id CHAR(8) PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     start_time TIME NOT NULL,
     end_time TIME NOT NULL
 );
 
 CREATE TABLE event_dates (
-    event_id INT,
+    event_id CHAR(8),
     event_date DATE,
     PRIMARY KEY (event_id, event_date),
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE
 );
 
 CREATE TABLE users (
-    user_id INT PRIMARY KEY,
-    event_id INT not NULL,
+    user_id CHAR(8) PRIMARY KEY,
+    event_id CHAR(8) not NULL,
     name VARCHAR(64) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES events(event_id) ON DELETE CASCADE,
     UNIQUE (event_id, name)
 );
 
 CREATE TABLE availability (
-    user_id INT NOT NULL,
+    user_id CHAR(8) NOT NULL,
     available DATETIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     unique (user_id, available)
