@@ -28,10 +28,7 @@ const tableFontSize = 12;
 const unavailableColour = "rgb(255, 200, 200)";
 const availableColour = "rgb(200, 255, 200)";
 
-// take in event intervals and display each days's time as a stack of boxes to be clickable
-// 1. setup time table selector with all the event intervals
-// 2. api request to get the users availability times so highlight the appropriate boxes
-// 3. setup being able to click and select the boxes to add to availability
+// when updating the availability, should take some function to also update the viewing table to see the relevant changes?
 export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability }: AvailabilitySetterProp) => {
     const days: number = dayTimeSlots.length;
     const slotsInADay: number = dayTimeSlots[0].length;

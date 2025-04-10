@@ -1,8 +1,14 @@
 # Meet Up
 
+<div align='center'>
+<img src="meet_up_preview.png" alt="Sample Image" width="500">
+</div>
+
+<!-- ![Sample Image](meet_up_preview.png) -->
+
 Meet Up is a scheduling application designed to help users coordinate and plan availabilities to find the best time to set up an event. Whether for social gatherings, meetings, or collaborative events, Meet Up simplifies the process of finding a time that works for everyone.
 
-## 🎯 Motivation and Goals
+## Motivation and Goals
 
 The primary motivation behind the Meet Up project is to further develop and strengthen full-stack development skills by building a fully functional web application from scratch. Key goals for the project include:
 
@@ -12,13 +18,13 @@ The primary motivation behind the Meet Up project is to further develop and stre
 - Feature Expansion: Continuously explore and implement new features to enhance the usability and functionality of the application.
 - End-to-End Development Workflow: Gain hands-on experience in every stage of development, from initial project setup to deployment and maintenance.
 
-## 🚀 Features
+## Features
 
 - Event Creation: Create events with a name, dates, earliest time, latest time, and timezone.
 - User Management: Create new users for events.
 - User Availability: Set availability times for users to help coordinate schedules efficiently.
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 - TypeScript: Type-safe development for both frontend and backend
 - React: Dynamic and interactive UI
@@ -42,8 +48,9 @@ The primary motivation behind the Meet Up project is to further develop and stre
 
 ### Mistakes
 
-1. Constant refactoring backend API after learning proper SOLID technique for API development (Controllers and Services functionality)
-2. No proper research into timezone management for event scheduling, leading to major refactoring of backend
+1. Constant refactoring backend API after learning proper SOLID technique for API development (Controllers and Services functionality).
+2. No proper research into timezone management for event scheduling, leading to major refactoring of backend.
+3. Needed to do more preplanning of front and backend interactions to avoid major refactoring, resulting in reworking previous code to correct functionality.
 
 ### Enjoyed
 

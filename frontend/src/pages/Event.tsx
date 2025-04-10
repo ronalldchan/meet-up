@@ -140,7 +140,11 @@ export const Event = () => {
             </Box>
             <Box>
                 <Typography>Debug</Typography>
-                <>
+                <Typography>List of Users</Typography>
+                {userData.users.map((data) => {
+                    return <Typography>{data.name}</Typography>;
+                })}
+                {/* <>
                     {userData.users.map((data) => {
                         return (
                             <>
@@ -151,7 +155,7 @@ export const Event = () => {
                             </>
                         );
                     })}
-                </>
+                </> */}
             </Box>
             {/* <Box>
                 <br />
