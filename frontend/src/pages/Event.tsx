@@ -6,19 +6,16 @@ import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
 import { AvailabilitySetter } from "../components/AvailabilitySetter";
 import { API } from "../ApiEndpoints";
-import NotificationMessage from "../components/NotificationMessage";
 import { localTimeAsUTC, utcAsLocalTime } from "../generalHelpers";
 
 export const Event = () => {
     const { id } = useParams();
-    // const test = import.meta.env.VITE_API_URL; // TODO: for setting up api url for deployment
-    // if (!test) console.error("fail");
     const [eventData, setEventData] = useState<getEvent>({} as getEvent);
     const [userData, setUserData] = useState<getEventUsers>({} as getEventUsers);
     const [availabilityMap, setAvailabilityMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [dataError, setDataError] = useState<string | null>(null);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string>("");
     const [username, setUsername] = useState<string>("");
     const [allTimeSlots, setAllTimeSlots] = useState<string[][]>([]);
@@ -63,7 +60,7 @@ export const Event = () => {
             }
         };
         fetchData();
-    }, []);
+    }, [id]);
 
     if (loading)
         return (

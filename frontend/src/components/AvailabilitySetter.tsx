@@ -25,6 +25,7 @@ interface AvailabilitySetterProp {
 }
 
 const tableFontSize = 12;
+// const tableCellStyle = { width: "1px" };
 const unavailableColour = "rgb(255, 200, 200)";
 const availableColour = "rgb(200, 255, 200)";
 
@@ -34,23 +35,23 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
     const slotsInADay: number = dayTimeSlots[0].length;
 
     const [selectedTimes, setSelectedTimes] = React.useState<Set<string>>(new Set(availability)); // Track selected times
-    const [isDragging, setIsDragging] = React.useState(false); // Track drag state
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
     const [, setDraggedCells] = useState<Set<string>>(new Set());
     const didStartDragInComponent = useRef(false);
+    const isDragging = useRef<boolean>(false);
     const dragMode = useRef<"add" | "remove" | null>(null);
 
     const handlePointerDown = (datetime: string) => {
         didStartDragInComponent.current = true;
-        setIsDragging(true);
+        isDragging.current = true;
         setDraggedCells(new Set([datetime]));
         dragMode.current = selectedTimes.has(datetime) ? "remove" : "add";
         toggleSelection(datetime);
     };
 
     const handlePointerEnter = (datetime: string) => {
-        if (!isDragging) return;
+        if (!isDragging.current) return;
 
         setDraggedCells((prev) => {
             if (prev.has(datetime)) return prev;
@@ -73,7 +74,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
     useEffect(() => {
         const handlePointerUp = () => {
             if (didStartDragInComponent.current) {
-                setIsDragging(false);
+                isDragging.current = false;
                 setDraggedCells(new Set());
                 didStartDragInComponent.current = false;
                 dragMode.current = null;
@@ -87,29 +88,29 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
 
     const generateTimeRows = () => {
         const rows = [];
-        for (let i = 0; i < slotsInADay; i++) {
+        for (let timeIndex = 0; timeIndex < slotsInADay; timeIndex++) {
             const cells = [];
-            const slot: Date = utcAsLocalTime(new Date(dayTimeSlots[0][i]));
-            if (slot.getMinutes() == 0) {
+            const timeSlot: Date = utcAsLocalTime(new Date(dayTimeSlots[0][timeIndex]));
+
+            if (timeSlot.getMinutes() == 0) {
                 cells.push(
-                    <TableCell rowSpan={2} key={`time-${i}`}>
+                    <TableCell rowSpan={2} key={`time-${timeIndex}`} align="center">
                         <Typography fontSize={tableFontSize} sx={{ whiteSpace: "nowrap" }}>
-                            {format(slot, "h a")}
+                            {format(timeSlot, "h a")}
                         </Typography>
                     </TableCell>
                 );
             }
 
-            for (let j = 0; j < days; j++) {
-                const isoValue: string = dayTimeSlots[j][i];
+            for (let dayIndex = 0; dayIndex < days; dayIndex++) {
+                const isoValue: string = dayTimeSlots[dayIndex][timeIndex];
                 cells.push(
                     <TableCell
                         onPointerDown={() => handlePointerDown(isoValue)}
-                        onPointerEnter={() => handlePointerEnter(isoValue)}
-                        padding="none"
-                        height={1}
+                        onPointerOver={() => handlePointerEnter(isoValue)}
+                        // padding="none"
                         key={isoValue}
-                        data-value={isoValue}
+                        // data-value={isoValue} // for debugging
                         sx={{
                             border: 1,
                             borderColor: "rgb(0, 0, 0)",
@@ -118,7 +119,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
                     />
                 );
             }
-            rows.push(<TableRow key={`row-${i}`}>{cells}</TableRow>);
+            rows.push(<TableRow key={`${timeIndex}`}>{cells}</TableRow>);
         }
         return rows;
     };
@@ -139,8 +140,8 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
     return (
         <form onSubmit={handleSubmit}>
             <Box display={"flex"} justifyContent={"center"} alignItems={"center"} flexDirection={"column"} gap={2}>
-                <TableContainer component={Paper} sx={{ overflowX: "auto", maxWidth: "40vw", margin: "auto" }}>
-                    <Table>
+                <TableContainer component={Paper} sx={{ maxWidth: "66vw", overflow: "auto", width: "max-content" }}>
+                    <Table size="small">
                         <TableHead>
                             <TableRow>
                                 <TableCell />
@@ -158,6 +159,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
                         <TableBody sx={{ userSelect: "none" }}>{generateTimeRows()}</TableBody>
                     </Table>
                 </TableContainer>
+
                 <Box display={"flex"} gap={2}>
                     <Button onClick={() => setSelectedTimes(new Set())}>select none</Button>
                     <Button onClick={() => setSelectedTimes(new Set(dayTimeSlots.flat()))}>select all</Button>
