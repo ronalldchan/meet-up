@@ -11,7 +11,7 @@ import {
     Typography,
 } from "@mui/material";
 import { format } from "date-fns";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import NotificationMessage from "./NotificationMessage";
 import axios from "axios";
 import { API } from "../ApiEndpoints";
@@ -37,45 +37,53 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
     const [isDragging, setIsDragging] = React.useState(false); // Track drag state
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
-    const [draggedCells, setDraggedCells] = useState<Set<string>>(new Set());
+    const [, setDraggedCells] = useState<Set<string>>(new Set());
+    const didStartDragInComponent = useRef(false);
+    const dragMode = useRef<"add" | "remove" | null>(null);
+
+    const handlePointerDown = (datetime: string) => {
+        didStartDragInComponent.current = true;
+        setIsDragging(true);
+        setDraggedCells(new Set([datetime]));
+        dragMode.current = selectedTimes.has(datetime) ? "remove" : "add";
+        toggleSelection(datetime);
+    };
+
+    const handlePointerEnter = (datetime: string) => {
+        if (!isDragging) return;
+
+        setDraggedCells((prev) => {
+            if (prev.has(datetime)) return prev;
+            const newSet = new Set(prev);
+            newSet.add(datetime);
+            toggleSelection(datetime);
+            return newSet;
+        });
+    };
+
+    const toggleSelection = (datetime: string) => {
+        setSelectedTimes((prev) => {
+            const newSet = new Set(prev);
+            if (dragMode.current == "remove") newSet.delete(datetime);
+            else newSet.add(datetime);
+            return newSet;
+        });
+    };
 
     useEffect(() => {
         const handlePointerUp = () => {
-            setIsDragging(false);
-            setDraggedCells(new Set());
+            if (didStartDragInComponent.current) {
+                setIsDragging(false);
+                setDraggedCells(new Set());
+                didStartDragInComponent.current = false;
+                dragMode.current = null;
+            }
         };
         window.addEventListener("pointerup", handlePointerUp);
         return () => {
             window.removeEventListener("pointerup", handlePointerUp);
         };
     }, []);
-
-    const toggleSelection = (datetime: string) => {
-        setSelectedTimes((prev) => {
-            const newSet = new Set(prev);
-            if (newSet.has(datetime)) newSet.delete(datetime);
-            else newSet.add(datetime);
-            return newSet;
-        });
-    };
-
-    const handlePointerDown = (datetime: string) => {
-        setIsDragging(true);
-        setDraggedCells(new Set([datetime]));
-        toggleSelection(datetime);
-    };
-
-    const handlePointerEnter = (datetime: string) => {
-        if (isDragging) {
-            setDraggedCells((prev) => {
-                if (prev.has(datetime)) return prev;
-                const newSet = new Set(prev);
-                newSet.add(datetime);
-                toggleSelection(datetime);
-                return newSet;
-            });
-        }
-    };
 
     const generateTimeRows = () => {
         const rows = [];
@@ -127,8 +135,6 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
             setError((error as Error).message || "Failed to update availability");
         }
     };
-
-    console.log(selectedTimes);
 
     return (
         <form onSubmit={handleSubmit}>
