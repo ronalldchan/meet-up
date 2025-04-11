@@ -7,7 +7,7 @@ import { UserSession } from "../components/UserSession";
 import { AvailabilitySetter } from "../components/AvailabilitySetter";
 import { API } from "../ApiEndpoints";
 import NotificationMessage from "../components/NotificationMessage";
-import { utcAsLocalTime } from "../generalHelpers";
+import { localTimeAsUTC, utcAsLocalTime } from "../generalHelpers";
 
 export const Event = () => {
     const { id } = useParams();
@@ -15,13 +15,13 @@ export const Event = () => {
     // if (!test) console.error("fail");
     const [eventData, setEventData] = useState<getEvent>({} as getEvent);
     const [userData, setUserData] = useState<getEventUsers>({} as getEventUsers);
-    const [availabilityMap] = useState<Map<string, Date[]>>(new Map<string, Date[]>());
+    const [availabilityMap, setAvailabilityMap] = useState<Map<string, string[]>>(new Map<string, string[]>());
     const [loading, setLoading] = useState<boolean>(true);
     const [dataError, setDataError] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string>("");
     const [username, setUsername] = useState<string>("");
-    const [allTimeSlots, setAllTimeSlots] = useState<Date[][]>([]);
+    const [allTimeSlots, setAllTimeSlots] = useState<string[][]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,24 +32,25 @@ export const Event = () => {
                 setUserData(userResponse.data);
                 const availabilityResponse = await axios.get(API.events.availability(id as string));
                 availabilityResponse.data.availabilities.forEach((value: Availability) => {
-                    availabilityMap.set(
-                        value.userId,
-                        value.dates.map((value) => utcAsLocalTime(new Date(value)))
-                    );
+                    setAvailabilityMap((prev) => {
+                        const update = new Map(prev);
+                        update.set(value.userId, value.dates);
+                        return update;
+                    });
                 });
 
                 const [startHours, startMinutes] = eventResponse.data.startTime.split(":").map(Number);
                 const [endHours, endMinutes] = eventResponse.data.endTime.split(":").map(Number);
-                const timeSlots: Date[][] = [];
+                const timeSlots: string[][] = [];
                 for (const dateIso of eventResponse.data.dates) {
-                    const result: Date[] = [];
+                    const result: string[] = [];
                     const dayStart: Date = utcAsLocalTime(new Date(dateIso));
                     dayStart.setHours(startHours, startMinutes);
                     const dayEnd: Date = utcAsLocalTime(new Date(dateIso));
                     dayEnd.setHours(endHours, endMinutes);
                     const curr: Date = new Date(dayStart);
                     while (curr < dayEnd) {
-                        result.push(new Date(curr));
+                        result.push(localTimeAsUTC(new Date(curr)).toISOString());
                         curr.setMinutes(curr.getMinutes() + 30);
                     }
                     timeSlots.push(result);
@@ -132,17 +133,13 @@ export const Event = () => {
                 <Typography variant="h5" fontWeight={"bold"}>
                     Group Availability
                 </Typography>
-                <Typography>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit. Blanditiis esse sunt inventore tempore sed
-                    libero voluptatum iure quibusdam veniam molestiae dignissimos, minus commodi consequatur similique
-                    eum neque deleniti quis nihil?
-                </Typography>
+                <Typography>Group Information Here</Typography>
             </Box>
             <Box>
                 <Typography>Debug</Typography>
                 <Typography>List of Users</Typography>
                 {userData.users.map((data) => {
-                    return <Typography>{data.name}</Typography>;
+                    return <Typography key={data.name}>{data.name}</Typography>;
                 })}
                 {/* <>
                     {userData.users.map((data) => {

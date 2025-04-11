@@ -15,13 +15,13 @@ import React, { useEffect, useState } from "react";
 import NotificationMessage from "./NotificationMessage";
 import axios from "axios";
 import { API } from "../ApiEndpoints";
-import { localTimeAsUTC } from "../generalHelpers";
+import { utcAsLocalTime } from "../generalHelpers";
 
 interface AvailabilitySetterProp {
     eventId: string;
     userId: string;
-    dayTimeSlots: Date[][];
-    availability: Date[];
+    dayTimeSlots: string[][];
+    availability: string[];
 }
 
 const tableFontSize = 12;
@@ -33,11 +33,11 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
     const days: number = dayTimeSlots.length;
     const slotsInADay: number = dayTimeSlots[0].length;
 
-    const [selectedTimes, setSelectedTimes] = React.useState<Date[]>(availability); // Track selected times
+    const [selectedTimes, setSelectedTimes] = React.useState<Set<string>>(new Set(availability)); // Track selected times
     const [isDragging, setIsDragging] = React.useState(false); // Track drag state
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
-    const [draggedCells, setDraggedCells] = useState<Set<number>>(new Set());
+    const [draggedCells, setDraggedCells] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         const handlePointerUp = () => {
@@ -50,29 +50,27 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
         };
     }, []);
 
-    const toggleSelection = (datetime: Date) => {
-        setSelectedTimes((prev) =>
-            prev.some((value: Date) => value.getTime() == datetime.getTime())
-                ? prev.filter((t) => t.getTime() !== datetime.getTime())
-                : [...prev, datetime]
-        );
+    const toggleSelection = (datetime: string) => {
+        setSelectedTimes((prev) => {
+            const newSet = new Set(prev);
+            if (newSet.has(datetime)) newSet.delete(datetime);
+            else newSet.add(datetime);
+            return newSet;
+        });
     };
 
-    const handlePointerDown = (datetime: Date) => {
+    const handlePointerDown = (datetime: string) => {
         setIsDragging(true);
-        const timestamp = datetime.getTime();
-        setDraggedCells(new Set([timestamp]));
+        setDraggedCells(new Set([datetime]));
         toggleSelection(datetime);
     };
 
-    const handlePointerEnter = (datetime: Date) => {
+    const handlePointerEnter = (datetime: string) => {
         if (isDragging) {
-            // toggleSelection(datetime);
-            const timestamp = datetime.getTime();
             setDraggedCells((prev) => {
-                if (prev.has(timestamp)) return prev;
+                if (prev.has(datetime)) return prev;
                 const newSet = new Set(prev);
-                newSet.add(timestamp);
+                newSet.add(datetime);
                 toggleSelection(datetime);
                 return newSet;
             });
@@ -83,7 +81,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
         const rows = [];
         for (let i = 0; i < slotsInADay; i++) {
             const cells = [];
-            const slot = dayTimeSlots[0][i];
+            const slot: Date = utcAsLocalTime(new Date(dayTimeSlots[0][i]));
             if (slot.getMinutes() == 0) {
                 cells.push(
                     <TableCell rowSpan={2} key={`time-${i}`}>
@@ -95,23 +93,19 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
             }
 
             for (let j = 0; j < days; j++) {
-                const datetimeValue: Date = dayTimeSlots[j][i];
+                const isoValue: string = dayTimeSlots[j][i];
                 cells.push(
                     <TableCell
-                        onPointerDown={() => handlePointerDown(datetimeValue)}
-                        onPointerEnter={() => handlePointerEnter(datetimeValue)}
+                        onPointerDown={() => handlePointerDown(isoValue)}
+                        onPointerEnter={() => handlePointerEnter(isoValue)}
                         padding="none"
                         height={1}
-                        key={datetimeValue.toISOString()}
-                        data-value={datetimeValue.toISOString()}
+                        key={isoValue}
+                        data-value={isoValue}
                         sx={{
                             border: 1,
                             borderColor: "rgb(0, 0, 0)",
-                            backgroundColor: selectedTimes.some(
-                                (value: Date) => value.getTime() == datetimeValue.getTime()
-                            )
-                                ? availableColour
-                                : unavailableColour,
+                            backgroundColor: selectedTimes.has(isoValue) ? availableColour : unavailableColour,
                         }}
                     />
                 );
@@ -126,7 +120,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
         e.preventDefault();
         try {
             await axios.patch(API.events.userAvailability(eventId, userId), {
-                availability: selectedTimes.map((value) => localTimeAsUTC(value)),
+                availability: Array.from(selectedTimes),
             });
             setSuccess("updated availablity");
         } catch (error) {
@@ -159,8 +153,8 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
                     </Table>
                 </TableContainer>
                 <Box display={"flex"} gap={2}>
-                    <Button onClick={() => setSelectedTimes([])}>select none</Button>
-                    <Button onClick={() => setSelectedTimes(dayTimeSlots.flat())}>select all</Button>
+                    <Button onClick={() => setSelectedTimes(new Set())}>select none</Button>
+                    <Button onClick={() => setSelectedTimes(new Set(dayTimeSlots.flat()))}>select all</Button>
                     <Button variant="contained" type="submit">
                         Update Availability
                     </Button>

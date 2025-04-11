@@ -1,5 +1,5 @@
 export interface getEvent {
-    dates: Date[];
+    dates: string[];
     eventId: string;
     name: string;
     startTime: string;
