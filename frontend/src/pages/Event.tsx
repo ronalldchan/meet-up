@@ -132,63 +132,6 @@ export const Event = () => {
                 </Typography>
                 <Typography>Group Information Here</Typography>
             </Box>
-            <Box>
-                <Typography>Debug</Typography>
-                <Typography>List of Users</Typography>
-                {userData.users.map((data) => {
-                    return <Typography key={data.name}>{data.name}</Typography>;
-                })}
-                {/* <>
-                    {userData.users.map((data) => {
-                        return (
-                            <>
-                                <Typography key={data.name}>{`${data.name}: ${
-                                    availabilityMap.get(data.userId) || []
-                                }`}</Typography>
-                                <br />
-                            </>
-                        );
-                    })}
-                </> */}
-            </Box>
-            {/* <Box>
-                <br />
-                <Typography>Event Dates: {eventData.dates}</Typography>
-                <Typography>Event Start: {eventData.startTime}</Typography>
-                <Typography>Event End: {eventData.endTime}</Typography>
-                <br />
-                <Typography variant="h3">Debug</Typography>
-                <Typography>Users:</Typography>
-                <>
-                    {userData.users.map((data) => {
-                        return (
-                            <Typography key={data.name}>{`${data.name} + ${
-                                availabilityMap.get(data.userId) || []
-                            }`}</Typography>
-                        );
-                    })}
-                </>
-                <Typography>{username}</Typography>
-                <Typography>{userSession}</Typography>
-                <Typography>{eventData.dates}</Typography>
-                <>
-                    <Typography>My Range</Typography>
-                    {eventIntervals.map((val) => (
-                        <>
-                            <Box>{val[0].toDateString()}</Box>
-                            {val.map((val2) => (
-                                <Typography key={val2.toISOString()}>{val2.toISOString()}</Typography>
-                            ))}
-                        </>
-                    ))}
-                </>
-                <NotificationMessage
-                    open={!!error}
-                    message={error || ""}
-                    severity={"error"}
-                    onClose={() => setError(null)}
-                />
-            </Box> */}
         </Container>
     );
 };
