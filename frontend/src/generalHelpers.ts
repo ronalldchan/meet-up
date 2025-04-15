@@ -23,3 +23,27 @@ export function utcAsLocalTime(date: Date): Date {
         date.getUTCMilliseconds()
     );
 }
+type ISODateString = string;
+
+export function generateTimeslots(
+    dates: ISODateString[],
+    startHour: number,
+    startMinute: number,
+    endHour: number,
+    endMinute: number
+): ISODateString[][] {
+    const timeSlots: ISODateString[][] = [];
+    for (const dateIso of dates) {
+        const result: ISODateString[] = [];
+        const curr: Date = utcAsLocalTime(new Date(dateIso));
+        curr.setHours(startHour, startMinute);
+        const dayEnd: Date = utcAsLocalTime(new Date(dateIso));
+        dayEnd.setHours(endHour, endMinute);
+        while (curr < dayEnd) {
+            result.push(localTimeAsUTC(new Date(curr)).toISOString());
+            curr.setMinutes(curr.getMinutes() + 30);
+        }
+        timeSlots.push(result);
+    }
+    return timeSlots;
+}

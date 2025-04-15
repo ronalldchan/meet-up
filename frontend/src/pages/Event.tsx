@@ -6,7 +6,8 @@ import { Availability, getEvent, getEventUsers } from "../ApiResponses";
 import { UserSession } from "../components/UserSession";
 import { AvailabilitySetter } from "../components/AvailabilitySetter";
 import { API } from "../ApiEndpoints";
-import { localTimeAsUTC, utcAsLocalTime } from "../generalHelpers";
+import { generateTimeslots } from "../generalHelpers";
+import { AvailabilityViewer } from "../components/AvailabilityViewer";
 
 export const Event = () => {
     const { id } = useParams();
@@ -18,7 +19,7 @@ export const Event = () => {
     const [, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string>("");
     const [username, setUsername] = useState<string>("");
-    const [allTimeSlots, setAllTimeSlots] = useState<string[][]>([]);
+    const [allTimeslots, setAllTimeslots] = useState<string[][]>([]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,21 +39,14 @@ export const Event = () => {
 
                 const [startHours, startMinutes] = eventResponse.data.startTime.split(":").map(Number);
                 const [endHours, endMinutes] = eventResponse.data.endTime.split(":").map(Number);
-                const timeSlots: string[][] = [];
-                for (const dateIso of eventResponse.data.dates) {
-                    const result: string[] = [];
-                    const dayStart: Date = utcAsLocalTime(new Date(dateIso));
-                    dayStart.setHours(startHours, startMinutes);
-                    const dayEnd: Date = utcAsLocalTime(new Date(dateIso));
-                    dayEnd.setHours(endHours, endMinutes);
-                    const curr: Date = new Date(dayStart);
-                    while (curr < dayEnd) {
-                        result.push(localTimeAsUTC(new Date(curr)).toISOString());
-                        curr.setMinutes(curr.getMinutes() + 30);
-                    }
-                    timeSlots.push(result);
-                }
-                setAllTimeSlots(timeSlots);
+                const timeslots = generateTimeslots(
+                    eventResponse.data.dates,
+                    startHours,
+                    startMinutes,
+                    endHours,
+                    endMinutes
+                );
+                setAllTimeslots(timeslots);
             } catch (error) {
                 setDataError((error as Error).message);
             } finally {
@@ -119,7 +113,7 @@ export const Event = () => {
                             <AvailabilitySetter
                                 eventId={eventData.eventId}
                                 userId={userId}
-                                dayTimeSlots={allTimeSlots}
+                                dayTimeSlots={allTimeslots}
                                 availability={availabilityMap.get(userId) ?? []}
                             />
                         </Box>
@@ -130,6 +124,7 @@ export const Event = () => {
                 <Typography variant="h5" fontWeight={"bold"}>
                     Group Availability
                 </Typography>
+                <AvailabilityViewer />
                 <Typography>Group Information Here</Typography>
             </Box>
         </Container>
