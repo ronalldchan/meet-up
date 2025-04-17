@@ -22,6 +22,7 @@ interface AvailabilitySetterProp {
     userId: string;
     dayTimeSlots: string[][];
     availability: string[];
+    updater: (newValue: string[]) => void;
 }
 
 const tableFontSize = 12;
@@ -30,7 +31,13 @@ const unavailableColour = "rgb(255, 200, 200)";
 const availableColour = "rgb(200, 255, 200)";
 
 // when updating the availability, should take some function to also update the viewing table to see the relevant changes?
-export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability }: AvailabilitySetterProp) => {
+export const AvailabilitySetter = ({
+    eventId,
+    userId,
+    dayTimeSlots,
+    availability,
+    updater,
+}: AvailabilitySetterProp) => {
     const days: number = dayTimeSlots.length;
     const slotsInADay: number = dayTimeSlots[0].length;
 
@@ -131,6 +138,7 @@ export const AvailabilitySetter = ({ eventId, userId, dayTimeSlots, availability
             await axios.patch(API.events.userAvailability(eventId, userId), {
                 availability: Array.from(selectedTimes),
             });
+            updater(Array.from(selectedTimes));
             setSuccess("updated availablity");
         } catch (error) {
             setError((error as Error).message || "Failed to update availability");

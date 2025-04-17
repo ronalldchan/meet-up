@@ -8,6 +8,7 @@ import { AvailabilitySetter } from "../components/AvailabilitySetter";
 import { API } from "../ApiEndpoints";
 import { generateTimeslots } from "../generalHelpers";
 import { AvailabilityViewer } from "../components/AvailabilityViewer";
+import { UserList } from "../components/UserList";
 
 export const Event = () => {
     const { id } = useParams();
@@ -90,15 +91,28 @@ export const Event = () => {
         }
     };
 
+    const updater = (availability: string[]) => {
+        setAvailabilityMap((prev) => {
+            const update = new Map(prev);
+            update.set(userId, availability);
+            return update;
+        });
+    };
+
     return (
         <Container>
             <Typography variant="h2" align="center">
                 {eventData.name}
             </Typography>
             <Typography>Invite people to this event by sending them this link!</Typography>
-            <Box sx={{ display: "flex", gap: 5, justifyContent: "space-around" }}>
+            <Box sx={{ display: "flex", gap: 5, justifyContent: "center", alignItems: "flex-start" }}>
                 {!userId ? (
-                    <UserSession setUsername={userSessionSetup} />
+                    <>
+                        <Box maxHeight={"20vw"} overflow={"auto"}>
+                            <UserList usernames={userData.users.map((user) => user.name)} />
+                        </Box>
+                        <UserSession setUsername={userSessionSetup} />
+                    </>
                 ) : (
                     <>
                         <Box
@@ -115,6 +129,7 @@ export const Event = () => {
                                 userId={userId}
                                 dayTimeSlots={allTimeslots}
                                 availability={availabilityMap.get(userId) ?? []}
+                                updater={updater}
                             />
                         </Box>
                     </>
@@ -124,7 +139,11 @@ export const Event = () => {
                 <Typography variant="h5" fontWeight={"bold"}>
                     Group Availability
                 </Typography>
-                <AvailabilityViewer />
+                <AvailabilityViewer
+                    users={new Map(userData.users.map((user) => [user.userId, user.name]))}
+                    availabilities={availabilityMap}
+                    timeslots={allTimeslots}
+                />
                 <Typography>Group Information Here</Typography>
             </Box>
         </Container>
